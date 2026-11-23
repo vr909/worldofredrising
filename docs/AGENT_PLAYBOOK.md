@@ -110,3 +110,8 @@ Taste notes from the lead: <specific guidance, pitfalls, what "great" looks like
    aside gets triaged into the backlog or an explicit "won't do". (M1: a builder flagged a missing loch; it was
    only fixed after the human found it.)
 9. **Measure budgets every milestone.** Run the frame-cost probe at each milestone gate, not only in the final perf ticket.
+10. **Verify every worktree's base commit right after launch.** In M2 one of three worktrees was created from a
+    stale commit, so that builder read an outdated ticket and lacked new store fields. Check with
+    `git -C .claude/worktrees/agent-<id> log -1`; if it's behind, tell the agent to merge the integration branch first.
+11. **Ask builders to commit WIP checkpoints.** Usage limits can stop every agent mid-task. Committed checkpoints
+    make resuming precise ("you're at commit X, continue with Y") and protect against lost work.
