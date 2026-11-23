@@ -13,7 +13,7 @@ export function App() {
         fallback={<div className="loading">Terraforming the valley…</div>}
       >
         <Canvas
-          shadows
+          shadows="percentage"
           dpr={quality === 'high' ? [1, 2] : 1}
           camera={{ fov: 35, near: 0.05, far: 600, position: [0, 62, 88] }}
           gl={{ antialias: true, preserveDrawingBuffer: true }}
