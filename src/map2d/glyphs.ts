@@ -99,7 +99,7 @@ export function buildGlyphs(): Glyph[] {
       mountains,
       (p, rnd) => {
         const t = westness(p);
-        const h = lerp(1.35, 2.7, t) * (0.8 + rnd() * 0.45);
+        const h = lerp(1.15, 3.0, t) * (0.8 + rnd() * 0.45);
         const w = (0.75 + rnd() * 0.3) * lerp(0.9, 1.15, t);
         return { kind: 'peak', v: rnd() < 0.55 ? 0 : 1, x: p[0], z: p[1], w, h };
       },

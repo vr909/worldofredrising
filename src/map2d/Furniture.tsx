@@ -47,7 +47,7 @@ export function MarsInset() {
   return (
     <svg
       className="m2-inset"
-      viewBox="-44 -44 88 88"
+      viewBox="-44 -38 88 98"
       role="img"
       aria-label="Inset: the valley lies in the southern Valles Marineris on Mars"
     >
@@ -69,8 +69,8 @@ export function MarsInset() {
       </g>
       <circle r="36" className="m2-inset-rim" />
       <circle className="m2-inset-pin" cx="2" cy="12" r="3.2" />
-      <path className="m2-inset-pin-line" d="M2 8.8V-24" />
-      <text className="m2-inset-text" x="2" y="-27.5" textAnchor="middle">
+
+      <text className="m2-inset-text" x="2" y="56" textAnchor="middle">
         The Institute
       </text>
     </svg>

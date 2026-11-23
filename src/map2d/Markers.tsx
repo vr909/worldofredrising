@@ -117,7 +117,7 @@ const Marker = memo(function Marker({
       onSelect(l.id);
     }
   };
-  const cls = `m2-marker m2-${l.kind}${selected ? ' is-selected' : ''}${hovered ? ' is-hover' : ''}`;
+  const cls = `m2-marker m2-k-${l.kind}${selected ? ' is-selected' : ''}${hovered ? ' is-hover' : ''}`;
   const inferred = l.confidence !== 'canon' ? ', inferred position' : '';
   const aria = `${l.name}${inferred}`;
   return (

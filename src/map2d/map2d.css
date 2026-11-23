@@ -48,7 +48,7 @@
 .map2d:focus-visible {
   box-shadow: inset 0 0 0 3px var(--m2-gold);
 }
-.map2d svg {
+.map2d > svg {
   display: block;
   width: 100%;
   height: 100%;
@@ -382,8 +382,8 @@
   cursor: default;
 }
 .m2-inset {
-  width: 76px;
-  height: 76px;
+  width: 92px;
+  height: 92px;
   flex: none;
 }
 .m2-inset-cap {
@@ -563,4 +563,14 @@
   font-size: 1.4px;
   font-weight: 700;
   fill: var(--m2-ink);
+}
+
+.m2-peak,
+.m2-shade,
+.m2-hatch,
+.m2-tree,
+.m2-trunk,
+.m2-hill,
+.m2-tuft {
+  vector-effect: non-scaling-stroke;
 }
