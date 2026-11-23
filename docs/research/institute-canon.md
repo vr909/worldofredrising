@@ -98,3 +98,27 @@ Castles are drawn as a black battlement silhouette over a downward-pointing tria
   "wintry" canyon walls → **thaw**: the Argos thaws unexpectedly fast, stranding armies.
 - **[C]** Key beats: Mars–Ceres summer siege · Mars tribal collapse · Darrow takes Minerva & traps Diana ·
   winter march south · fall of Ceres, Apollo, Jupiter · storming of Olympus.
+
+## 7. Additions from T09 research (verified by the lead where marked ✓)
+
+- **Proctors:** only Fitchner (Mars) is named; the rest go by their House god (p.140, 168). Jupiter: a lion-haired
+  giant with a lightning-bolt collar. Apollo: bow collar, coiled hair. Mercury: winged feet, baby face (p.139).
+  Neptune: trident headdress (p.257).
+- **Apollo Castle** ✓: tall, white, ornate. A round plaza with six doorways leading to six spiralling towers, and a
+  hundred-metre parapet (p.340). Ramparts look over the Greatwoods to Mars's highlands in the north (p.345). Primus: Novas (p.321).
+- **Jupiter Castle** ✓: high rocky ground between two huge rock faces; three-tiered walls bow outward; postern gate (p.353).
+- **Minerva Castle:** sandstone, in olive country; 30 m walls; a 100 m mud killing field; a city inside; a war room on
+  the third level with an atlas (p.217–218, 243, 254, 259–261). It falls in autumn and is burned (p.259, 261).
+- **Ceres Castle:** a courtyard leading to several buildings and a huge keep where the bread bakes (p.309).
+- **Deimos** ✓: from afar a dwarf-mountain range (p.168); up close, low hills surrounded by thick woods (p.207).
+  The Metas bridge is "near Phobos" (p.301). The Furor is north of the castle (p.207).
+- **Winter at Mars** ✓: while Darrow lies wounded for four weeks in a cave in the North Woods, "Cassius is Primus.
+  Winter has come." (p.280). Darrow returns only at the thaw (p.383–384).
+- **Thaw at Mars:** catapults reduce Phobos and Deimos to rubble; Jupiter, Apollo and a quarter of Pluto besiege the
+  castle (p.383–384).
+- **Pluto:** subterranean in the low mountains; blitzed by Vulcan on day 3; the Jackal collapsed the tunnels (p.335).
+  Scouts ride black horses, with black-dyed hair and bone in their braids (p.264, 320–321, 325). The Jackal is Adrius
+  au Augustus, Mustang's (Virginia's) brother (p.382, 389).
+- **Names:** "Postern Hills" appears only on the printed map; the text says "Minerva's country of high grass and olive
+  trees" (p.254). The text says "southern sea" (p.321) where the map says "South Sea". Bacchus's barrels hold grape
+  juice, not wine (p.352, 360).
