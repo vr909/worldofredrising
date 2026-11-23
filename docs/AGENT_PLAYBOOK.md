@@ -89,3 +89,20 @@ Taste notes from the lead: <specific guidance, pitfalls, what "great" looks like
 | Spec was wrong or ambiguous | Fix the spec first (TASKS/DESIGN), then re-brief. Log it in the journal; it's a lesson. |
 | Integration breaks after merge | Lead fixes integration glue; if it's a contract gap, update the contract and its tests. |
 | Agent stuck in a loop | Stop it, summarise what it learned, start a fresh agent with a narrower ticket. |
+
+## 8. Lessons folded in after M1
+
+1. **Combined review is its own step.** After merging a wave, render the milestone's hero views with *everything*
+   merged before sending any follow-ups. Most M1 issues only appeared in combination.
+2. **Hold dependent feedback.** Don't send look feedback that depends on another ticket's data (terrain → mist,
+   snow, walls) until that data has landed; otherwise the agent tunes to throwaway inputs.
+3. **Contracts need semantics, not just types.** For every shared data channel, write down its ranges, whether
+   values may overlap, and how they combine (see `SurfaceChannels`). Two agents filled that gap differently in M1.
+4. **Give agents the instrument for every requirement.** If a requirement can't be screenshotted (e.g. a
+   transition), add a debug parameter first (`?seasonT=`), then ask for it.
+5. **Size waves to the budget.** Five parallel agents hit the account's usage limit. Default to waves of ~3; work
+   in worktrees survives interruptions. Resume with SendMessage stating the agent's exact state (HEAD, merged or
+   not, uncommitted changes).
+6. **Screenshots are slow with high-detail terrain in software GL (20–75 s per view).** Ask agents to shoot a
+   few views per call and to use `SHOT_SIZE=1200x750` while iterating.
+7. **"Looked at every image" is checked.** If a report admits a view wasn't opened, the lead opens it before merging.
