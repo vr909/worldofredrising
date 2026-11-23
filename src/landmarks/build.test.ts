@@ -27,7 +27,15 @@ describe('landmark recipes', () => {
         const pos = g.getAttribute('position');
         expect(g.getAttribute('color').count).toBe(pos.count);
         expect(g.getAttribute('normal').count).toBe(pos.count);
-        for (let i = 0; i < pos.array.length; i++) expect(Number.isFinite(pos.array[i]!)).toBe(true);
+        let bad = -1;
+        const arr = pos.array;
+        for (let i = 0; i < arr.length; i++) {
+          if (!Number.isFinite(arr[i]!)) {
+            bad = i;
+            break;
+          }
+        }
+        expect(bad, `${l.id} non-finite position`).toBe(-1);
         // nothing should wander far outside the site (gatehouse barbicans and walls may overshoot a little)
         const box = g.boundingBox!;
         const reach = Math.max(

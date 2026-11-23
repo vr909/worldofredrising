@@ -290,7 +290,7 @@ export function neptuneCastle(k: Kit): void {
 
 /** Pluto (inferred): no castle; a cave mouth and a hidden gate in the hillside facing the gate direction. */
 export function plutoCaves(k: Kit): void {
-  const p = palette('pluto', '#8b8595', '#b3adbd');
+  const p = palette('pluto', '#9a94a4', '#c2bccb');
   const rock = new Color('#7d7787');
   const base = k.gyLocal(0, 0);
   const z = 0.8; // foot of the hillside (local +z is uphill)
@@ -316,18 +316,18 @@ export function plutoCaves(k: Kit): void {
     const v = z + 0.06 + k.rng() * 0.16;
     if (Math.abs(u) < 0.2 && v < z + 0.1) continue;
     const r = 0.06 + k.rng() * 0.07;
-    k.rock('stone', u, v, r, k.gy(u, v) - r * 0.2, rock);
+    k.rock('stone', u, v, r, k.gy(u, v) - r * 0.35, rock, 0.85);
   }
   for (let i = 0; i < 6; i++) {
     const u = -0.2 + i * 0.08;
-    k.rock('stone', u, z + 0.05, 0.1, gz + 0.27, rock);
+    k.rock('stone', u, z + 0.05, 0.1, gz + 0.26, rock, 0.6);
   }
   // the hidden gate: a small iron-banded door half-covered by a fallen slab, off to one side
   const hu = 0.42;
   k.box('stone', hu, z - 0.02, 0.1, 0.08, base - 0.02, base + 0.1, 0, p.stone, { ao: 0.7 });
   k.arch(hu, z - 0.065, 0.045, 0.065, base, Math.PI);
-  k.rock('stone', hu - 0.05, z - 0.09, 0.05, base, rock, 1.2);
-  k.rock('stone', hu + 0.05, z - 0.08, 0.04, base, rock, 1.0);
+  k.rock('stone', hu - 0.05, z - 0.09, 0.05, k.gy(hu - 0.05, z - 0.09), rock, 1.2);
+  k.rock('stone', hu + 0.05, z - 0.08, 0.04, k.gy(hu + 0.05, z - 0.08), rock, 1.0);
   k.pole(0.2, z - 0.1, base + 0.2, 0.1, p.trim);
 }
 

@@ -106,8 +106,9 @@ export function apolloCastle(k: Kit): void {
 
 /** Jupiter: dark basalt, between two rock faces, three-tiered walls bowing outward, postern gate (p.353). */
 export function jupiterCastle(k: Kit): void {
-  const p = palette('jupiter', '#6f7480', '#a3abbd');
+  const p = palette('jupiter', '#9399a6', '#c0c8d8');
   const base = k.gyLocal(0, 0);
+  const paving = p.pave.clone().multiplyScalar(1.3);
   const span = 1.3; // wall ends are driven into the rock faces at +-x
   const tiers = [
     { z: -0.78, bow: 0.28, h: 0.13 },
@@ -135,8 +136,8 @@ export function jupiterCastle(k: Kit): void {
         base - 0.03,
         base + t.h - 0.02,
         0,
-        p.stone2,
-        { ao: 0.8 },
+        paving,
+        { ao: 0.9, vary: 0.05 },
       );
     }
     k.wall(arc, { topY: base + t.h, th: 0.07, stone: p.stone, trim: p.trim, sink: 0.05 });
@@ -317,48 +318,92 @@ export function dianaCastle(k: Kit): void {
   const base = k.gyLocal(0, 0);
   const bark = new Color('#5a4630');
   const R = 0.85;
-  const pts = ringCastle(k, p, base, {
-    n: 12,
-    rMax: R,
-    wallH: 0.1,
-    th: 0.035,
-    gate: 9,
-    towerR: 0.04,
-    towerH: 0.2,
-    towerRoof: 'cone',
-    roofH: 0.14,
-    merlons: false,
-    vertex: (i, u, v) => {
-      // timber lookout on a tall stilted trunk instead of a masonry tower
-      if (i % 2 === 0) return true;
+  const N = 12;
+  const GATE = 9;
+  const logC = new Color('#6b5336');
+  const pts: P[] = [];
+  for (let i = 0; i < N; i++) pts.push([Math.cos((i / N) * TAU) * R, Math.sin((i / N) * TAU) * R]);
+  // chunky log palisade with pointed tops, walkway gallery behind it (a covered fighting gallery on the front arc)
+  const logH = 0.12;
+  for (let i = 0; i < N; i++) {
+    const A = pts[i]!;
+    const B = pts[(i + 1) % N]!;
+    const L = Math.hypot(B[0] - A[0], B[1] - A[1]);
+    const n = Math.floor(L / 0.03);
+    for (let j = 0; j < n; j++) {
+      const t = (j + 0.5) / n;
+      const u = A[0] + (B[0] - A[0]) * t;
+      const v = A[1] + (B[1] - A[1]) * t;
+      if (Math.hypot(u - pts[GATE]![0], v - pts[GATE]![1]) < 0.17) continue;
+      const h = logH * (0.9 + k.rng() * 0.2);
+      const g = k.gy(u, v) - 0.02;
+      k.cyl('stone', u, v, 0.015, 0.014, g, base + h, 6, logC, { ao: 0.7, vary: 0.12 });
+      k.cone('stone', u, v, 0.015, base + h, 0.028, 6, logC, { ao: 1, vary: 0.1 });
+    }
+    const mu = (A[0] + B[0]) / 2;
+    const mv = (A[1] + B[1]) / 2;
+    const ang = -Math.atan2(B[1] - A[1], B[0] - A[0]);
+    const inx = -mu / R;
+    const inz = -mv / R;
+    k.box('trim', mu + inx * 0.045, mv + inz * 0.045, L, 0.05, base + 0.075, base + 0.085, ang, p.trim, {
+      ao: 1,
+    });
+    if (i >= 6 && i <= 8) {
+      // covered gallery: posts and a pitched roof strip over the walkway
+      k.box('roof', mu + inx * 0.045, mv + inz * 0.045, L, 0.075, base + 0.15, base + 0.158, ang, p.roof, {
+        ao: 1,
+      });
+      for (const s of [0.25, 0.75]) {
+        const px = A[0] + (B[0] - A[0]) * s + inx * 0.06;
+        const pz = A[1] + (B[1] - A[1]) * s + inz * 0.06;
+        k.cyl('trim', px, pz, 0.008, 0.008, base + 0.085, base + 0.15, 5, p.trim, { ao: 1 });
+      }
+    }
+  }
+  for (let i = 0; i < N; i++) {
+    if (i === GATE) continue;
+    const [u, v] = pts[i]!;
+    const g = k.groundMin(u, v, 0.04) - 0.02;
+    if (i % 2 === 0) {
+      // stout timber corner tower
+      const top = base + 0.2;
+      k.cyl('stone', u, v, 0.048, 0.042, g, top, 8, logC, { ao: 0.7 });
+      k.cyl('trim', u, v, 0.058, 0.058, top, top + 0.016, 8, p.trim, { ao: 1 });
+      k.cone('roof', u, v, 0.062, top + 0.016, 0.12, 8, p.roof);
+    } else {
+      // tall stilted lookout on a trunk
       const top = base + 0.42;
-      const g = k.groundMin(u, v, 0.03) - 0.02;
       k.cyl('stone', u, v, 0.034, 0.026, g, top, 7, bark);
       k.cyl('trim', u, v, 0.07, 0.07, top, top + 0.014, 8, p.trim, { ao: 1 });
       k.cone('roof', u, v, 0.075, top + 0.014, 0.12, 8, p.roof);
-      return false;
-    },
-    gateOpts: { w: 0.24, towerR: 0.06, tall: 0.1, roofH: 0.16 },
-  });
-  // invented: timber walkway ringed around the keep, hung between the tall lookouts
-  for (let i = 1; i < 12; i += 2) {
-    const A = pts[i]!;
-    const B = pts[(i + 2) % 12]!;
-    if (i === 9 || (i + 2) % 12 === 9) continue;
-    const dx = B[0] - A[0];
-    const dz = B[1] - A[1];
-    k.box(
-      'trim',
-      (A[0] + B[0]) / 2,
-      (A[1] + B[1]) / 2,
-      Math.hypot(dx, dz),
-      0.022,
-      base + 0.37,
-      base + 0.385,
-      -Math.atan2(dz, dx),
-      p.trim,
-      { ao: 1 },
-    );
+    }
+  }
+  const gp = pts[GATE]!;
+  k.at(gp[0], gp[1], 0, () =>
+    gatehouse(k, p, { topY: base + 0.1, w: 0.24, towerR: 0.06, tall: 0.1, roofH: 0.16 }),
+  );
+  // invented: treetop platforms on short sturdy posts (the tree-climbing soldiers), inside and just outside the palisade
+  for (const [u, v] of [
+    [-0.5, -0.35],
+    [0.55, -0.4],
+    [0.1, 1.0],
+  ] as P[]) {
+    const top = base + 0.22;
+    for (const [dx, dz] of [
+      [-1, -1],
+      [1, -1],
+      [-1, 1],
+      [1, 1],
+    ] as const) {
+      const pu = u + dx * 0.035;
+      const pv = v + dz * 0.035;
+      k.cyl('stone', pu, pv, 0.012, 0.01, k.gy(pu, pv) - 0.02, top, 6, bark, { ao: 0.7 });
+    }
+    k.box('trim', u, v, 0.12, 0.12, top, top + 0.012, 0, p.trim, { ao: 1 });
+    k.box('trim', u, v - 0.06, 0.12, 0.008, top + 0.012, top + 0.04, 0, p.trim, { ao: 1 });
+    k.box('trim', u, v + 0.06, 0.12, 0.008, top + 0.012, top + 0.04, 0, p.trim, { ao: 1 });
+    k.cone('roof', u, v, 0.085, top + 0.07, 0.07, 6, p.roof);
+    k.cyl('trim', u + 0.05, v, 0.004, 0.004, top + 0.012, top + 0.07, 4, p.trim, { ao: 1 });
   }
   // great timber hall with a steep roof and a tall central tower
   k.hall(0, 0.1, 0.34, 0.6, base, 0.09, 0.15, 0, { stone: p.stone2, roofC: p.roof, door: true });
