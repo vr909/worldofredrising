@@ -172,16 +172,22 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
     margin: Math.max(BLEND[r.kind], r.kind === 'sea' ? 1.2 : 0) + 0.01,
     poly: indexPolygon(r.polygon),
   }));
+  // One entry per lake region: its own level, bowl depth and round glen (filled in below).
+  const lakes = regs
+    .filter((r) => r.slot === LAKE)
+    .map((r) => ({ id: REGIONS[r.idx]!.id, x: 0, z: 0, level: 0, depth: 0.15, glenR: 1.9 }));
+  const lakeOfRegion = new Map<number, number>();
+  regs.filter((r) => r.slot === LAKE).forEach((r, i) => lakeOfRegion.set(r.idx, i));
+  const lakeSd: number[] = new Array<number>(lakes.length).fill(1e9);
   const W = new Float64Array(8);
   let curRegion = 0;
   let seaSd = 1e9;
-  let lakeSd = 1e9;
 
   const regionWeights = (x: number, z: number): void => {
     W.fill(0);
     curRegion = 0;
     seaSd = 1e9;
-    lakeSd = 1e9;
+    lakeSd.fill(1e9);
     let landSum = 0;
     for (let k = 0; k < regs.length; k++) {
       const r = regs[k]!;
@@ -191,7 +197,7 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
       const sd = polySignedDistance(p, x, z);
       if (sd < 0) curRegion = r.idx + 1;
       if (r.slot === SEA) seaSd = sd;
-      if (r.slot === LAKE) lakeSd = sd;
+      if (r.slot === LAKE) lakeSd[lakeOfRegion.get(r.idx)!] = sd;
       const raw = 1 - smoothstep(-r.blend, r.blend, sd);
       if (raw <= 0) continue;
       W[r.slot] = W[r.slot]! + raw;
@@ -243,18 +249,31 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
     return lerp(rv.prof[i]!, rv.prof[i + 1]!, f - i);
   };
 
-  const lochRegion = REGIONS.find((r) => r.kind === 'lake');
-  let lochX = 0;
-  let lochZ = 0;
-  if (lochRegion) {
-    for (const [px, pz] of lochRegion.polygon) {
-      lochX += px / lochRegion.polygon.length;
-      lochZ += pz / lochRegion.polygon.length;
+  for (const lk of lakes) {
+    const poly = REGIONS.find((r) => r.id === lk.id)!.polygon;
+    for (const [px, pz] of poly) {
+      lk.x += px / poly.length;
+      lk.z += pz / poly.length;
+    }
+    regionWeights(lk.x, lk.z);
+    lk.level = datumFromWeights(lk.x, lk.z) - 0.03;
+    if (lk.id === 'dark-loch') {
+      // Small, cold and deep, in a modest humid glen (p.213).
+      lk.depth = 0.28;
+      lk.glenR = 1.6;
     }
   }
-  regionWeights(lochX, lochZ);
-  /** Highland loch water level: the Furor leaves it, so the Furor's first profile value equals this. */
-  const lochLevel = datumFromWeights(lochX, lochZ) - 0.03;
+  const lochLevel = lakes.find((l) => l.id === 'highland-loch')?.level ?? 0;
+  /** 0 inside a lake's round glen, 1 beyond; and a crest ring of hills cupping the dark loch's glen. */
+  const lakeGlen = (x: number, z: number, only: string): number => {
+    let t = 1;
+    for (const lk of lakes) {
+      if (lk.id !== only) continue;
+      t = Math.min(t, smoothstep(0, 1.3, Math.hypot(x - lk.x, z - lk.z) - lk.glenR));
+    }
+    return t;
+  };
+  const darkLake = lakes.find((l) => l.id === 'dark-loch');
 
   const built = new Set<string>();
   const buildProfile = (i: number): void => {
@@ -314,7 +333,7 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
       if (t < side) side = t;
     }
     // The loch sits in its own round glen at the head of the Furor.
-    const lochT = smoothstep(0, 1.15, Math.hypot(x - lochX, z - lochZ) - 1.9);
+    const lochT = lakeGlen(x, z, 'highland-loch');
     return lochT < side ? lochT : side;
   };
 
@@ -408,7 +427,20 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
     let h = datumFromWeights(x, z);
     if (W[MOUNTAINS]! > 0.002) h += W[MOUNTAINS]! * mountainRelief(x, z, mtnEnv(x));
     if (W[HIGHLANDS]! > 0.002) h += W[HIGHLANDS]! * highlandRelief(x, z) * glenSide(x, z);
-    if (W[HILLS]! > 0.002) h += W[HILLS]! * hillsRelief(x, z);
+    if (W[HILLS]! > 0.002) {
+      let rel = hillsRelief(x, z);
+      if (darkLake) {
+        // The Dark Loch's glen: hollowed, with hill crests on its flanks.
+        const d = Math.hypot(x - darkLake.x, z - darkLake.z);
+        const crest =
+          smoothstep(darkLake.glenR + 0.8, darkLake.glenR + 2.2, d) *
+          (1 - smoothstep(darkLake.glenR + 2.6, darkLake.glenR + 5, d));
+        rel =
+          rel * (0.1 + 0.9 * lakeGlen(x, z, 'dark-loch')) +
+          0.5 * crest * (0.6 + 0.4 * (0.5 + 0.5 * fbm(x, z, 0.35, 2)));
+      }
+      h += W[HILLS]! * rel;
+    }
     if (W[FOREST]! > 0.002) h += W[FOREST]! * forestRelief(x, z);
     if (W[PLAINS]! > 0.002) h += W[PLAINS]! * plainsRelief(x, z);
     if (W[MARSH]! > 0.002) h += W[MARSH]! * marshRelief(x, z);
@@ -419,11 +451,14 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
       const seaH = -0.06 - 0.52 * smoothstep(0, 8, depth) - 0.03 * fbm(x, z, 0.35, 2);
       h = lerp(h, seaH, W[SEA]!);
     }
-    // Highland loch: a bowl whose rim sits 0.02 above the water plane (Water.tsx puts the plane at rim - 0.02).
-    if (lakeSd < 0.4) {
-      const bowl = lochLevel + 0.02 - 0.15 * smoothstep(0, 0.5, -lakeSd);
-      const t = smoothstep(0, 0.4, lakeSd);
-      h = lerp(bowl, Math.max(h, lochLevel + 0.03), t);
+    // Lakes: a bowl whose rim sits 0.02 above the water plane (Water.tsx puts the plane at rim - 0.02).
+    for (let li = 0; li < lakes.length; li++) {
+      const sd = lakeSd[li]!;
+      if (sd >= 0.4) continue;
+      const lk = lakes[li]!;
+      const bowl = lk.level + 0.02 - lk.depth * smoothstep(0, 0.5, -sd);
+      const t = smoothstep(0, 0.4, sd);
+      h = lerp(bowl, Math.max(h, lk.level + 0.03), t);
     }
     const mean =
       W[MOUNTAINS]! * (0.25 + 1.3 * mtnEnv(x)) + W[HIGHLANDS]! * 0.45 + W[HILLS]! * 0.3 + W[FOREST]! * 0.15;
@@ -554,6 +589,7 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
   const wallW = new Uint8Array(n);
   const lockArr = new Uint8Array(n);
   const bedArr = new Uint8Array(n);
+  const lakeIn = new Uint8Array(n);
 
   for (let r = 0; r < rows; r++) {
     const z = minZ + r * cs;
@@ -565,11 +601,13 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
       for (let k = 0; k < 8; k++) wk[i * 8 + k] = to8(W[k]!);
       sandW[i] = to8(1 - smoothstep(0.25, 0.75, seaSd));
       wallW[i] = to8(wallMask(x));
-      const lakeNow = lakeSd;
+      let lakeNow = 1e9;
+      for (let li = 0; li < lakes.length; li++) lakeNow = Math.min(lakeNow, lakeSd[li]!);
       const seaNow = W[SEA]!;
       const marshNow = W[MARSH]!;
       h = applySites(x, z, h);
       lockArr[i] = lock;
+      if (lakeNow < 0.05) lakeIn[i] = 1;
       heights[i] = h;
       let wet = 0;
       if (seaNow > 0.02 || marshNow > 0.1) wet = Math.max(wet, 1 - smoothstep(-0.01, 0.02, h));
@@ -638,7 +676,7 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
       const z = minZ + r * cs;
       for (let c = c0; c <= c1; c++) {
         const i = r * cols + c;
-        if (bedArr[i] !== 0) continue;
+        if (bedArr[i] !== 0 || lakeIn[i] !== 0) continue;
         const x = minX + c * cs;
         nearestOnLine(rv.line, x, z, near);
         const halfW = 0.5 * lerp(rv.w0, rv.w1, near.u);

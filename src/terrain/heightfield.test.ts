@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LANDMARKS, RIVERS } from '../world/layout';
+import { LANDMARKS, REGIONS, RIVERS } from '../world/layout';
 import { indexLine, lineAt, nearestOnLine, type LinePoint, type Nearest } from './gen/sdf';
 import { generateHeightfield } from './heightfield';
 
@@ -184,5 +184,36 @@ describe('terrain generator v2', () => {
     expect(fine.surface.splatA[cellIndex(25, -20) * 4 + 3]!).toBe(0);
     // AO is bright on open plains.
     expect(fine.surface.ao[cellIndex(5, 0)]!).toBeGreaterThan(230);
+  });
+
+  it('shapes every lake as a bowl: rim above the water, centre lower, nothing poking through', () => {
+    const lakes = REGIONS.filter((r) => r.kind === 'lake');
+    expect(lakes.map((l) => l.id)).toContain('dark-loch');
+    for (const lake of lakes) {
+      const rim = lake.polygon.map(([x, z]) => fine.heightAt(x, z));
+      const level = Math.min(...rim) - 0.01; // how src/water places the plane
+      const cx = lake.polygon.reduce((a, p) => a + p[0], 0) / lake.polygon.length;
+      const cz = lake.polygon.reduce((a, p) => a + p[1], 0) / lake.polygon.length;
+      expect(fine.heightAt(cx, cz), `${lake.id} centre`).toBeLessThan(level - 0.05);
+      for (const [x, z] of lake.polygon) {
+        // Shore samples just outside the polygon stay above the water.
+        const dx = x - cx;
+        const dz = z - cz;
+        const k = 1 + 0.25 / Math.hypot(dx, dz);
+        expect(fine.heightAt(cx + dx * k, cz + dz * k), `${lake.id} shore`).toBeGreaterThan(level);
+      }
+      // Nothing inside the lake rises above the water plane.
+      for (const f of [0.2, 0.4, 0.6]) {
+        for (const [x, z] of lake.polygon) {
+          expect(fine.heightAt(cx + (x - cx) * f, cz + (z - cz) * f), `${lake.id} interior`).toBeLessThan(
+            level,
+          );
+        }
+      }
+    }
+    // The Furor leaves the highland loch at the loch's level.
+    const loch = REGIONS.find((r) => r.id === 'highland-loch')!;
+    const rimMin = Math.min(...loch.polygon.map(([x, z]) => fine.heightAt(x, z)));
+    expect(Math.abs(fine.riverSurfaceAt('furor', 0) - (rimMin - 0.01))).toBeLessThan(0.06);
   });
 });
