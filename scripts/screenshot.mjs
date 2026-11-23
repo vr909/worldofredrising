@@ -13,6 +13,7 @@
  */
 import { spawn, execSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
+import net from 'node:net';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
@@ -46,10 +47,23 @@ async function waitForServer(url, ms = 60000) {
   throw new Error(`server did not start at ${url}`);
 }
 
+/** A free TCP port, so several agents can run screenshots at the same time. */
+function freePort() {
+  return new Promise((resolve, reject) => {
+    const srv = net.createServer();
+    srv.unref();
+    srv.on('error', reject);
+    srv.listen(0, () => {
+      const { port } = srv.address();
+      srv.close(() => resolve(port));
+    });
+  });
+}
+
 let server;
 let base = process.env.SHOT_URL;
 if (!base) {
-  const port = 5199;
+  const port = await freePort();
   base = `http://localhost:${port}/`;
   server = spawn(path.resolve('node_modules/.bin/vite'), ['--port', String(port), '--strictPort'], {
     stdio: ['ignore', 'ignore', 'inherit'],
