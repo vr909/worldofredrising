@@ -1,13 +1,15 @@
 /**
  * Provides the one Heightfield instance to the whole scene. Consumers call useHeightfield().
- * Generation happens once, before the Canvas mounts, behind the loading screen.
- * (T01 may move generation into a Web Worker; consumers do not change.)
+ * Generation happens once, in a Web Worker (see gen/worker.ts), behind the loading screen; the main
+ * thread only rebuilds the cheap sampling functions from the transferred arrays.
  */
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { Quality } from '../state/urlParams';
-import { generateHeightfield, type Heightfield } from './heightfield';
+import type { Heightfield } from './heightfield';
+import { generateHeightfieldAsync } from './gen/async';
 
-const CELL_SIZE: Record<Quality, number> = { high: 0.25, medium: 0.33, low: 0.5 };
+/** Heightfield cell size per quality tier (ARCHITECTURE §7). */
+const CELL_SIZE: Record<Quality, number> = { high: 0.125, medium: 0.2, low: 0.33 };
 
 const Ctx = createContext<Heightfield | null>(null);
 
@@ -28,12 +30,13 @@ export function HeightfieldProvider({
 }) {
   const [hf, setHf] = useState<Heightfield | null>(null);
   useEffect(() => {
-    // Yield one frame so the loading screen paints before the synchronous generation blocks.
-    const id = window.setTimeout(
-      () => setHf(generateHeightfield({ cellSize: CELL_SIZE[quality], seed: 1729 })),
-      30,
-    );
-    return () => window.clearTimeout(id);
+    let cancelled = false;
+    void generateHeightfieldAsync({ cellSize: CELL_SIZE[quality], seed: 1729 }).then((result) => {
+      if (!cancelled) setHf(result);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [quality]);
   return hf ? <Ctx.Provider value={hf}>{children}</Ctx.Provider> : <>{fallback}</>;
 }
