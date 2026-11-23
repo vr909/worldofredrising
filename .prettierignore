@@ -5,3 +5,4 @@ docs/images
 package-lock.json
 docs
 *.md
+.claude

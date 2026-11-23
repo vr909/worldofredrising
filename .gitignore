@@ -7,3 +7,5 @@ coverage
 # Never commit the source book or scans of its artwork (copyright).
 *.pdf
 reference/
+# Agent worktrees and local Claude state (never commit)
+.claude/

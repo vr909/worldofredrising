@@ -5,7 +5,7 @@ import globals from 'globals';
 import { defineConfig } from 'eslint/config';
 
 export default defineConfig(
-  { ignores: ['dist', 'node_modules', 'screenshots', 'docs', 'coverage'] },
+  { ignores: ['dist', 'node_modules', 'screenshots', 'docs', 'coverage', '.claude'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
