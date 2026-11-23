@@ -29,9 +29,9 @@ vec4 moon(vec3 d, vec3 m, float R, float seed, vec3 tint, float irregular) {
   // cratering: dark pits from two noise octaves
   float c1 = aNoise(p * 4.5 + seed);
   float c2 = aNoise(p * 9.0 - seed);
-  float pits = smoothstep(0.6, 0.76, c1) * 0.3 + smoothstep(0.64, 0.8, c2) * 0.18;
+  float pits = smoothstep(0.6, 0.76, c1) * 0.15 + smoothstep(0.64, 0.8, c2) * 0.09;
   float mottled = 0.9 + 0.1 * aNoise(p * 2.5 + seed * 3.0);
-  vec3 col = tint * mottled * (1.0 - pits) * (0.3 + 0.7 * lit);
+  vec3 col = tint * mottled * (1.0 - pits) * (0.62 + 0.38 * lit);
   return vec4(col, cover);
 }
 
@@ -70,9 +70,9 @@ void main() {
   col = mix(col, cloudCol, streak * cloudMask * 0.22);
 
   // Mars's moons (Red Rising p.217 "The moons glimmer bright"): Phobos larger, Deimos a dot
-  vec4 mA = moon(s, uMoonA, 0.015, 1.3, vec3(0.62, 0.58, 0.54), 0.15);
-  vec4 mB = moon(s, uMoonB, 0.005, 4.1, vec3(0.7, 0.67, 0.63), 0.06);
-  float vis = 0.8 * smoothstep(0.03, 0.14, s.y);
+  vec4 mA = moon(s, uMoonA, 0.0085, 1.3, vec3(0.78, 0.75, 0.72), 0.22);
+  vec4 mB = moon(s, uMoonB, 0.003, 4.1, vec3(0.8, 0.77, 0.74), 0.06);
+  float vis = 0.6 * smoothstep(0.03, 0.14, s.y);
   col = mix(col, mA.rgb, mA.a * vis);
   col = mix(col, mB.rgb, mB.a * vis);
 

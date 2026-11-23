@@ -21,7 +21,7 @@ void main() {
   float shape = smoothstep(0.1, 0.8, n * 0.75 + n2 * 0.4);
   float a = radial * shape;
   // soft lower edge: quads never show a hard line against the ground
-  a *= mix(smoothstep(0.0, 0.45, vUv.y), smoothstep(0.0, 0.25, vUv.y), kind);
+  a *= mix(smoothstep(0.0, 0.45, vUv.y) * (1.0 - smoothstep(0.55, 1.0, vUv.y)), smoothstep(0.0, 0.25, vUv.y), kind);
   // fade when the camera is close
   a *= mix(smoothstep(0.4, 2.8, vDist), smoothstep(1.0, 5.0, vDist), kind) * vData.y;
   if (a < 0.003) discard;

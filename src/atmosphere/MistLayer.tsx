@@ -22,7 +22,7 @@ import mistFrag from './shaders/mist.frag.glsl?raw';
 import mistVert from './shaders/mist.vert.glsl?raw';
 import noise from './shaders/noise.glsl?raw';
 
-const MIST = { summer: new Color('#E9E6E0'), winter: new Color('#F1F3F4') };
+const WHITE = new Color('#ffffff');
 const CLOUD_LIT = { summer: new Color('#FFF6E8'), winter: new Color('#FAFBFC') };
 const CLOUD_SHADE = { summer: new Color('#B9BCCB'), winter: new Color('#BFC6D0') };
 
@@ -30,12 +30,14 @@ export function MistLayer() {
   const hf = useHeightfield();
   const data = useMemo(() => placeMist(hf), [hf]);
 
-  const { mesh, sortedPos, sortedSize, last } = useMemo(() => {
+  const { mesh, sortedPos, sortedSize, sortedDir, last } = useMemo(() => {
     const geo = new PlaneGeometry(1, 1);
     const posAttr = new InstancedBufferAttribute(new Float32Array(data.pos), 4);
     const sizeAttr = new InstancedBufferAttribute(new Float32Array(data.size), 4);
     geo.setAttribute('aPos', posAttr);
     geo.setAttribute('aSize', sizeAttr);
+    const dirAttr = new InstancedBufferAttribute(new Float32Array(data.dir), 4);
+    geo.setAttribute('aDir', dirAttr);
     const mat = new ShaderMaterial({
       vertexShader: mistVert,
       fragmentShader: mistFrag.replace('// NOISE', noise),
@@ -47,7 +49,7 @@ export function MistLayer() {
         UniformsLib.fog,
         {
           uTime: sharedUniforms.uTime,
-          uMistColor: { value: new Color(MIST.summer) },
+          uMistColor: { value: new Color('#d8d9d8') },
           uCloudLit: { value: new Color(CLOUD_LIT.summer) },
           uCloudShade: { value: new Color(CLOUD_SHADE.summer) },
         },
@@ -62,6 +64,7 @@ export function MistLayer() {
       mesh: m,
       sortedPos: posAttr,
       sortedSize: sizeAttr,
+      sortedDir: dirAttr,
       last: new Vector3(1e9, 0, 0),
     };
   }, [data]);
@@ -81,7 +84,7 @@ export function MistLayer() {
   useFrame(({ camera }) => {
     const u = (mesh.material as ShaderMaterial).uniforms;
     const s = sharedUniforms.uSeason.value;
-    (u.uMistColor!.value as Color).copy(MIST.summer).lerp(MIST.winter, s);
+    (u.uMistColor!.value as Color).copy(sharedUniforms.uFogColor.value).lerp(WHITE, 0.3);
     (u.uCloudLit!.value as Color).copy(CLOUD_LIT.summer).lerp(CLOUD_LIT.winter, s);
     (u.uCloudShade!.value as Color).copy(CLOUD_SHADE.summer).lerp(CLOUD_SHADE.winter, s);
 
@@ -93,6 +96,7 @@ export function MistLayer() {
     const cz = camera.position.z;
     const sp = sortedPos.array as Float32Array;
     const ss = sortedSize.array as Float32Array;
+    const sdr = sortedDir.array as Float32Array;
     for (let i = 0; i < data.count; i++) {
       const dx = data.pos[i * 4]! - cx;
       const dy = data.pos[i * 4 + 1]! - cy;
@@ -106,10 +110,12 @@ export function MistLayer() {
       for (let k = 0; k < 4; k++) {
         sp[dst + k] = data.pos[src + k]!;
         ss[dst + k] = data.size[src + k]!;
+        sdr[dst + k] = data.dir[src + k]!;
       }
     }
     sortedPos.needsUpdate = true;
     sortedSize.needsUpdate = true;
+    sortedDir.needsUpdate = true;
   });
 
   return <primitive object={mesh} />;

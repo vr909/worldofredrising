@@ -39,6 +39,6 @@ export const SKY = {
   dipHighDeg: 34,
   dipLowDeg: 2,
   /** [azimuth deg clockwise from north, elevation deg] in sky space. Overview looks north. */
-  phobos: [350, 11.5] as const,
-  deimos: [13, 13.5] as const,
+  phobos: [350, 13.5] as const,
+  deimos: [13, 14.8] as const,
 };

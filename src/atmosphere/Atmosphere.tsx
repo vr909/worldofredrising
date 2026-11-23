@@ -18,7 +18,7 @@ import {
 } from 'three';
 import { SUMMER } from '../render/palette';
 import { sharedUniforms } from '../render/uniforms';
-import { useStore, type Season } from '../state/store';
+import { START_PARAMS, useStore, type Season } from '../state/store';
 import { MistLayer } from './MistLayer';
 import { SkyDome } from './SkyDome';
 import { AMBIENT_GROUND, AMBIENT_SKY, FOG_COLOR, RIG, SUN_COLOR } from './tuning';
@@ -38,9 +38,10 @@ export function SharedUniformsDriver() {
   const first = useRef(true);
   useFrame((_, dt) => {
     sharedUniforms.uTime.value += dt;
-    const target = season === 'winter' ? 1 : 0;
+    const pinned = START_PARAMS.seasonT;
+    const target = pinned ?? (season === 'winter' ? 1 : 0);
     const u = sharedUniforms.uSeason;
-    if (first.current) {
+    if (first.current || pinned !== null) {
       u.value = target; // start-up state from the URL applies instantly
       first.current = false;
     } else {
