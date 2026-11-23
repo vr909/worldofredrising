@@ -1,0 +1,576 @@
+/* T17 2D map. Palette: parchment ground, ink linework, gold accents, rust walls, muted water. */
+.map2d {
+  --m2-ink: #1b1a17;
+  --m2-ink-soft: #4a443a;
+  --m2-parchment: #f1e9d6;
+  --m2-ground-a: #f1e9d6;
+  --m2-ground-b: #e4d8be;
+  --m2-water: #5e9aa8;
+  --m2-water-deep: #2f5f7a;
+  --m2-water-fill: rgba(94, 154, 168, 0.4);
+  --m2-peak: #eadfc6;
+  --m2-tree: #9fae72;
+  --m2-gold: #c8a24a;
+  --m2-tint-mountains: rgba(150, 125, 95, 0.22);
+  --m2-tint-forest: rgba(120, 140, 80, 0.2);
+  --m2-tint-highlands: rgba(130, 135, 85, 0.16);
+  --m2-tint-hills: rgba(170, 150, 90, 0.14);
+  --m2-tint-marsh: rgba(94, 154, 168, 0.18);
+  --m2-bank: #1b1a17;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 45%, #e4d8be 0%, #cdbd9b 100%);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  font-family: var(--font-body, 'EB Garamond', Georgia, serif);
+  outline: none;
+}
+.map2d.winter {
+  --m2-ground-a: #eef1f1;
+  --m2-ground-b: #d9e1e4;
+  --m2-water: #a9c6d3;
+  --m2-water-deep: #6f93a8;
+  --m2-water-fill: rgba(190, 215, 228, 0.7);
+  --m2-peak: #f3f6f6;
+  --m2-tree: #aebfb4;
+  --m2-tint-mountains: rgba(140, 150, 165, 0.22);
+  --m2-tint-forest: rgba(110, 130, 125, 0.2);
+  --m2-tint-highlands: rgba(150, 160, 165, 0.16);
+  --m2-tint-hills: rgba(170, 180, 185, 0.14);
+  background: radial-gradient(ellipse at 50% 45%, #dfe6e9 0%, #bfcad0 100%);
+}
+.map2d.dragging {
+  cursor: grabbing;
+}
+.map2d:focus-visible {
+  box-shadow: inset 0 0 0 3px var(--m2-gold);
+}
+.map2d > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.map2d-mini {
+  position: relative;
+  inset: auto;
+  cursor: default;
+  border: 1px solid var(--m2-ink);
+  border-radius: 4px;
+}
+
+.m2-ground-a {
+  stop-color: var(--m2-ground-a);
+}
+.m2-ground-b {
+  stop-color: var(--m2-ground-b);
+}
+.m2-tint {
+  stroke: none;
+}
+.m2-tint-mountains {
+  fill: var(--m2-tint-mountains);
+}
+.m2-tint-forest {
+  fill: var(--m2-tint-forest);
+}
+.m2-tint-highlands {
+  fill: var(--m2-tint-highlands);
+}
+.m2-tint-hills {
+  fill: var(--m2-tint-hills);
+}
+.m2-tint-marsh {
+  fill: var(--m2-tint-marsh);
+}
+
+/* Water */
+.m2-water-fill {
+  fill: var(--m2-water-fill);
+}
+.m2-wave {
+  fill: none;
+  stroke: var(--m2-water-deep);
+  stroke-width: 0.045;
+  stroke-linecap: round;
+  opacity: 0.7;
+}
+.m2-lining {
+  fill: none;
+  stroke: var(--m2-water);
+  stroke-width: 0.9;
+  opacity: 0.35;
+}
+.m2-lining.wide {
+  stroke-width: 1.8;
+  opacity: 0.18;
+}
+.m2-shore {
+  fill: none;
+  stroke: var(--m2-ink);
+  stroke-width: 1.4px;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+.m2-marsh-edge {
+  fill: none;
+  stroke: var(--m2-water-deep);
+  stroke-width: 1px;
+  stroke-dasharray: 2 4;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.55;
+}
+
+/* Glyphs: strokes are in screen pixels so linework stays engraved-thin at any zoom. */
+.m2-g path,
+.m2-g ellipse {
+  vector-effect: non-scaling-stroke;
+}
+.m2-peak {
+  fill: var(--m2-peak);
+  stroke: var(--m2-ink);
+  stroke-width: 0.9px;
+  stroke-linejoin: round;
+}
+.m2-shade {
+  fill: var(--m2-ink);
+  opacity: 0.38;
+  stroke: none;
+}
+.m2-hatch {
+  fill: none;
+  stroke: var(--m2-ink);
+  stroke-width: 0.6px;
+  opacity: 0.7;
+  stroke-linecap: round;
+}
+.m2-tree {
+  fill: var(--m2-tree);
+  stroke: var(--m2-ink);
+  stroke-width: 0.8px;
+  stroke-linejoin: round;
+}
+.m2-trunk {
+  fill: none;
+  stroke: var(--m2-ink);
+  stroke-width: 0.9px;
+}
+.m2-hill {
+  fill: var(--m2-peak);
+  stroke: var(--m2-ink);
+  stroke-width: 0.9px;
+  stroke-linecap: round;
+}
+.m2-hill.soft {
+  fill: none;
+  opacity: 0.6;
+}
+.m2-tuft {
+  fill: none;
+  stroke: var(--m2-water-deep);
+  stroke-width: 0.8px;
+  stroke-linecap: round;
+}
+
+/* Rivers */
+.m2-river-fill {
+  fill: var(--m2-water);
+  stroke: none;
+}
+.m2-river-bank {
+  fill: none;
+  stroke: var(--m2-bank);
+  stroke-width: 0.9px;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+
+/* Walls */
+.m2-wall-band {
+  stroke: none;
+}
+.m2-wallhatch {
+  stroke: #2a0f08;
+  stroke-width: 0.05;
+  opacity: 0.42;
+}
+.m2-cliff {
+  fill: none;
+  stroke: var(--m2-ink);
+  stroke-width: 1.4px;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+.m2-wall-text {
+  font-family: var(--font-display, 'Cinzel', serif);
+  font-size: 1.1px;
+  fill: var(--m2-parchment);
+  opacity: 0.85;
+  letter-spacing: 0.45em;
+  text-anchor: middle;
+  text-transform: uppercase;
+}
+
+/* Frame */
+.m2-frame-line {
+  fill: none;
+  stroke: var(--m2-ink);
+  stroke-width: 1.6px;
+  vector-effect: non-scaling-stroke;
+}
+.m2-frame-tick {
+  fill: var(--m2-ink);
+}
+
+/* Lettering */
+.m2-region {
+  font-family: var(--font-display, 'Cinzel', serif);
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  fill: var(--m2-ink);
+  paint-order: stroke;
+  stroke: var(--m2-ground-a);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  opacity: 0.88;
+}
+.m2-river-name {
+  font-family: var(--font-body, 'EB Garamond', serif);
+  font-style: italic;
+  letter-spacing: 0.12em;
+  fill: var(--m2-water-deep);
+  paint-order: stroke;
+  stroke: var(--m2-ground-a);
+  stroke-width: 0.12em;
+  stroke-linejoin: round;
+}
+.m2-place {
+  font-family: var(--font-body, 'EB Garamond', serif);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  fill: var(--m2-ink);
+  paint-order: stroke;
+  stroke: var(--m2-ground-a);
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* Markers */
+.m2-marker {
+  cursor: pointer;
+  outline: none;
+}
+.m2-hit {
+  fill: transparent;
+}
+.m2-pin {
+  transition: transform 140ms var(--ease, ease);
+}
+.m2-marker:hover .m2-pin,
+.m2-marker.is-hover .m2-pin {
+  transform: scale(1.16);
+}
+.m2-marker.is-selected .m2-pin {
+  transform: scale(1.28);
+}
+.m2-marker:focus-visible .m2-pin {
+  filter: drop-shadow(0 0 3px var(--m2-gold)) drop-shadow(0 0 2px var(--m2-gold));
+}
+.m2-under {
+  fill: var(--m2-ink);
+  stroke: var(--m2-ink);
+  stroke-width: 3.4px;
+  stroke-linejoin: round;
+}
+.m2-tri {
+  stroke: var(--m2-parchment);
+  stroke-width: 1px;
+  stroke-linejoin: round;
+}
+.m2-merlons {
+  fill: var(--m2-ink);
+}
+.m2-dash {
+  fill: none;
+  stroke: var(--m2-parchment);
+  stroke-width: 1.8px;
+  stroke-dasharray: 3 2.6;
+  stroke-linejoin: round;
+}
+.m2-dash.ink {
+  stroke: var(--m2-ink);
+}
+.m2-plain {
+  fill: var(--m2-parchment);
+  stroke: none;
+}
+.m2-glyph {
+  font-family: var(--font-display, 'Cinzel', serif);
+  font-weight: 700;
+  font-size: 13px;
+  fill: var(--m2-parchment);
+  pointer-events: none;
+}
+.m2-bridge-under {
+  fill: none;
+  stroke: var(--m2-ink);
+  stroke-width: 4px;
+  stroke-linecap: round;
+}
+.m2-bridge {
+  fill: none;
+  stroke: var(--m2-gold);
+  stroke-width: 2px;
+  stroke-linecap: round;
+}
+.m2-ring-under {
+  fill: rgba(241, 233, 214, 0.35);
+  stroke: var(--m2-ink);
+  stroke-width: 4.4px;
+  stroke-dasharray: 0.1 6;
+  stroke-linecap: round;
+}
+.m2-ring {
+  fill: none;
+  stroke: var(--m2-gold);
+  stroke-width: 2.6px;
+  stroke-dasharray: 0.1 6;
+  stroke-linecap: round;
+}
+.m2-citadel {
+  fill: var(--m2-parchment);
+  stroke: var(--m2-ink);
+  stroke-width: 1.4px;
+  stroke-linejoin: round;
+}
+.m2-halo {
+  fill: rgba(200, 162, 74, 0.28);
+  stroke: var(--m2-gold);
+  stroke-width: 1.5px;
+}
+.m2-dot {
+  fill: var(--m2-ink);
+  stroke: var(--m2-parchment);
+  stroke-width: 0.35;
+}
+.m2-dot.is-selected {
+  stroke: var(--m2-gold);
+  stroke-width: 0.8;
+}
+
+/* Cartouche, bottom-left: Mars inset, scale bar, legend. The HUD owns the other corners. */
+.m2-cartouche {
+  position: absolute;
+  left: var(--space-5, 24px);
+  bottom: calc(var(--space-5, 24px) + 48px);
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  padding: 10px 14px 10px 10px;
+  background: rgba(241, 233, 214, 0.9);
+  border: 1px solid var(--m2-ink);
+  outline: 1px solid var(--m2-gold);
+  outline-offset: 2px;
+  border-radius: 3px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  color: var(--m2-ink);
+  cursor: default;
+}
+.m2-inset {
+  width: 92px;
+  height: 92px;
+  flex: none;
+}
+.m2-inset-cap {
+  fill: #f3ece0;
+  opacity: 0.85;
+}
+.m2-inset-dark {
+  fill: none;
+  stroke: #4a1c10;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+.m2-inset-dark.thin {
+  stroke-width: 1.2;
+  opacity: 0.6;
+}
+.m2-inset-rim {
+  fill: none;
+  stroke: var(--m2-ink);
+  stroke-width: 1.5;
+}
+.m2-inset-pin {
+  fill: var(--m2-gold);
+  stroke: var(--m2-ink);
+  stroke-width: 1.2;
+}
+.m2-inset-pin-line {
+  stroke: var(--m2-ink);
+  stroke-width: 0.8;
+}
+.m2-inset-text {
+  font-family: var(--font-display, 'Cinzel', serif);
+  font-size: 7.5px;
+  letter-spacing: 0.08em;
+  fill: var(--m2-ink);
+  paint-order: stroke;
+  stroke: #f1e9d6;
+  stroke-width: 2.5px;
+}
+.m2-cartouche-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.m2-scalebar {
+  display: block;
+  overflow: visible;
+}
+.m2-sb-a {
+  fill: var(--m2-ink);
+}
+.m2-sb-b {
+  fill: var(--m2-parchment);
+  stroke: var(--m2-ink);
+  stroke-width: 1;
+}
+.m2-sb-tick {
+  stroke: var(--m2-ink);
+  stroke-width: 1;
+}
+.m2-sb-text {
+  font-family: var(--font-display, 'Cinzel', serif);
+  font-size: 11px;
+  fill: var(--m2-ink);
+}
+.m2-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.25;
+}
+.m2-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Zoom buttons: bottom-left under the cartouche, away from the placard on the right. */
+.m2-zoom {
+  position: absolute;
+  left: var(--space-5, 24px);
+  bottom: var(--space-5, 24px);
+  display: flex;
+  gap: 4px;
+}
+.m2-zoom button {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--glass-line, rgba(200, 162, 74, 0.45));
+  border-radius: 6px;
+  background: var(--glass, rgba(27, 26, 23, 0.72));
+  color: var(--parchment, #f1e9d6);
+  font-family: var(--font-display, 'Cinzel', serif);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+.m2-zoom button:hover,
+.m2-zoom button:focus-visible {
+  background: var(--gold, #c8a24a);
+  color: var(--ink, #1b1a17);
+}
+
+/* Tooltip */
+.m2-tip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  width: 280px;
+  max-width: calc(100% - 24px);
+  padding: 10px 14px 12px;
+  background: var(--m2-parchment);
+  border: 1px solid var(--m2-ink);
+  border-top: 3px solid var(--m2-gold);
+  border-radius: 3px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+  color: var(--m2-ink);
+  pointer-events: none;
+  font-size: 15px;
+  line-height: 1.35;
+}
+.m2-tip strong {
+  display: block;
+  font-family: var(--font-display, 'Cinzel', serif);
+  letter-spacing: 0.08em;
+  font-size: 15px;
+}
+.m2-tip em {
+  display: block;
+  color: var(--m2-ink-soft);
+  margin-bottom: 4px;
+}
+.m2-tip p {
+  margin: 0;
+}
+.m2-tip-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #8a6a1e;
+  color: var(--m2-parchment);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 700px) {
+  .m2-cartouche {
+    display: none;
+  }
+}
+
+.m2-rose-ring {
+  fill: rgba(241, 233, 214, 0.5);
+  stroke: var(--m2-ink);
+  stroke-width: 0.06;
+}
+.m2-rose-ring.thin {
+  fill: none;
+  stroke-width: 0.03;
+}
+.m2-rose-n {
+  fill: #9b2226;
+  stroke: var(--m2-ink);
+  stroke-width: 0.04;
+}
+.m2-rose-s {
+  fill: var(--m2-ink);
+}
+.m2-rose-text {
+  font-family: var(--font-display, 'Cinzel', serif);
+  font-size: 1.4px;
+  font-weight: 700;
+  fill: var(--m2-ink);
+}
+
+.m2-peak,
+.m2-shade,
+.m2-hatch,
+.m2-tree,
+.m2-trunk,
+.m2-hill,
+.m2-tuft {
+  vector-effect: non-scaling-stroke;
+}
