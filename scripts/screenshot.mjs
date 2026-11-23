@@ -92,7 +92,9 @@ try {
     if (is2d) qs.set('mode', '2d');
     if (process.env.SHOT_UI !== '1') qs.set('ui', '0');
     const t0 = Date.now();
-    await page.goto(`${base}?${qs}`);
+    // In 2D, a place view also selects the place (hash), so its placard opens.
+    const hash = is2d && shot !== 'overview' ? `#${shot}` : '';
+    await page.goto(`${base}?${qs}${hash}`);
     await page.waitForSelector('body[data-ready="true"]', { timeout: 120000 });
     await page.waitForTimeout(Number(process.env.SHOT_SETTLE_MS ?? 1200));
     const file = path.join(outDir, `${view.replace('@', '_at_').replace('2d:', '2d-')}.png`);

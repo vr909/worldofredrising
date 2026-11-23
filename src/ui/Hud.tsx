@@ -13,9 +13,10 @@ import './hud.css';
 export function Hud() {
   const showUi = useStore((s) => s.showUi);
   const entered = useStore((s) => s.entered);
+  const viewMode = useStore((s) => s.viewMode);
   if (!showUi) return null;
   return (
-    <div className="hud">
+    <div className={viewMode === '2d' ? 'hud hud--2d' : 'hud'}>
       <header className="hud-title">
         <span className="hud-kicker">World of Red Rising</span>
         <h1>The Institute</h1>
