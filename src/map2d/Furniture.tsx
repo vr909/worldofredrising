@@ -17,7 +17,13 @@ export function ScaleBar({ scale }: { scale: number }) {
   const km = niceScaleKm(scale);
   const px = Math.max(8, km * scale);
   return (
-    <svg className="m2-scalebar" width={px + 28} height="26" role="img" aria-label={`Scale bar: ${km} kilometres`}>
+    <svg
+      className="m2-scalebar"
+      width={px + 28}
+      height="26"
+      role="img"
+      aria-label={`Scale bar: ${km} kilometres`}
+    >
       <g transform="translate(4 8)">
         <rect className="m2-sb-a" x="0" y="0" width={px / 2} height="5" />
         <rect className="m2-sb-b" x={px / 2} y="0" width={px / 2} height="5" />
@@ -39,7 +45,12 @@ export function ScaleBar({ scale }: { scale: number }) {
  */
 export function MarsInset() {
   return (
-    <svg className="m2-inset" viewBox="-44 -44 88 88" role="img" aria-label="Inset: the valley lies in the southern Valles Marineris on Mars">
+    <svg
+      className="m2-inset"
+      viewBox="-44 -44 88 88"
+      role="img"
+      aria-label="Inset: the valley lies in the southern Valles Marineris on Mars"
+    >
       <defs>
         <radialGradient id="m2-mars" cx="0.38" cy="0.35" r="0.8">
           <stop offset="0" stopColor="#C77A4C" />
@@ -105,7 +116,12 @@ export function ZoomControls({ onZoomIn, onZoomOut, onReset }: ControlsProps) {
       </button>
       <button type="button" onClick={onReset} aria-label="Show whole valley" title="Show whole valley">
         <svg viewBox="-8 -8 16 16" width="16" height="16" aria-hidden="true">
-          <path d="M-6 -2V-6H-2M2 -6H6V-2M6 2V6H2M-2 6H-6V2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+          <path
+            d="M-6 -2V-6H-2M2 -6H6V-2M6 2V6H2M-2 6H-6V2"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
         </svg>
       </button>
     </div>
@@ -130,7 +146,9 @@ export function Tooltip({
       <strong>{place?.title ?? title}</strong>
       {place?.subtitle && <em>{place.subtitle}</em>}
       {place?.summary && <p>{place.summary}</p>}
-      {(inferred || place?.confidence === 'inferred') && <span className="m2-tip-badge">inferred position</span>}
+      {(inferred || place?.confidence === 'inferred') && (
+        <span className="m2-tip-badge">inferred position</span>
+      )}
     </div>
   );
 }

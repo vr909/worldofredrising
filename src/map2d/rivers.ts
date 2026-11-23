@@ -19,8 +19,7 @@ export function smoothLine(points: readonly Vec2[], perSegment = 6, closed = fal
   const out: Vec2[] = [];
   const segs = closed ? n : n - 1;
   const cr = (a: number, b: number, c: number, d: number, t: number): number =>
-    0.5 *
-    (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t * t + (-a + 3 * b - 3 * c + d) * t * t * t);
+    0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t * t + (-a + 3 * b - 3 * c + d) * t * t * t);
   for (let i = 0; i < segs; i++) {
     const p0 = at(i - 1);
     const p1 = at(i);

@@ -6,7 +6,15 @@
  * Pan and zoom are pure viewBox maths (viewport.ts); the heavy drawing is memoised in StaticMap so
  * only the markers and lettering re-render while the view moves.
  */
-import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+} from 'react';
 import { PLACES } from '../content/places';
 import { useStore } from '../state/store';
 import { landmarkById } from '../world/layout';
@@ -177,7 +185,11 @@ function FullMap() {
       e.preventDefault();
       const rect = el.getBoundingClientRect();
       const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1);
-      zoomBy(Math.exp(Math.max(-120, Math.min(120, dy)) * 0.0016), e.clientX - rect.left, e.clientY - rect.top);
+      zoomBy(
+        Math.exp(Math.max(-120, Math.min(120, dy)) * 0.0016),
+        e.clientX - rect.left,
+        e.clientY - rect.top,
+      );
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
@@ -353,8 +365,8 @@ function FullMap() {
       <svg viewBox={viewBox} aria-labelledby="m2-title m2-desc" role="group">
         <title id="m2-title">Map of the Institute valley</title>
         <desc id="m2-desc">
-          A flat map with north at the top: the Argos river runs south through the valley to the South Sea, with
-          mountains to the west, woods and highlands to the north and east, and a castle for each House.
+          A flat map with north at the top: the Argos river runs south through the valley to the South Sea,
+          with mountains to the west, woods and highlands to the north and east, and a castle for each House.
         </desc>
         <StaticMap uid="m2f" />
         <MapLabels scale={scale} labels={layers.labels} inferred={layers.inferred} />

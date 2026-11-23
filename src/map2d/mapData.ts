@@ -86,7 +86,14 @@ function buildWalls(): Pick<MapData, 'wallBands' | 'wallOutlines' | 'cliffEdges'
     const edges: Vec2[][] = [];
     for (let k = 0; k <= bands; k++) {
       const x = base + side * k * bandW;
-      edges.push(k === bands ? [[x, BOUNDS.minZ], [x, BOUNDS.maxZ]] : raggedEdge(x, k === 0 ? 0.42 : 0.28, rnd));
+      edges.push(
+        k === bands
+          ? [
+              [x, BOUNDS.minZ],
+              [x, BOUNDS.maxZ],
+            ]
+          : raggedEdge(x, k === 0 ? 0.42 : 0.28, rnd),
+      );
     }
     for (let k = 0; k < bands; k++) {
       // Lightest rust at the valley edge, deepest at the rim.

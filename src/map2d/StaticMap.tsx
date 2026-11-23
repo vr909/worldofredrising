@@ -15,12 +15,18 @@ function GlyphDefs({ uid }: { uid: string }) {
       <g id={`${uid}-peak-0`}>
         <path className="m2-peak" d="M-0.5 0L-0.2 -0.46L-0.1 -0.4L0.02 -1L0.15 -0.58L0.26 -0.66L0.5 0Z" />
         <path className="m2-shade" d="M0.02 -1L0.15 -0.58L0.26 -0.66L0.5 0L0.06 0Z" />
-        <path className="m2-hatch" d="M0.09 -0.62L0.2 -0.36M0.17 -0.52L0.32 -0.26M0.22 -0.36L0.38 -0.1M-0.3 -0.2L-0.18 -0.1" />
+        <path
+          className="m2-hatch"
+          d="M0.09 -0.62L0.2 -0.36M0.17 -0.52L0.32 -0.26M0.22 -0.36L0.38 -0.1M-0.3 -0.2L-0.18 -0.1"
+        />
       </g>
       <g id={`${uid}-peak-1`}>
         <path className="m2-peak" d="M-0.5 0L-0.16 -0.62L-0.06 -0.52L0.08 -1L0.2 -0.66L0.3 -0.72L0.5 0Z" />
         <path className="m2-shade" d="M0.08 -1L0.2 -0.66L0.3 -0.72L0.5 0L0.08 0Z" />
-        <path className="m2-hatch" d="M0.12 -0.66L0.22 -0.4M0.2 -0.5L0.34 -0.24M0.26 -0.34L0.4 -0.1M-0.32 -0.24L-0.2 -0.12" />
+        <path
+          className="m2-hatch"
+          d="M0.12 -0.66L0.22 -0.4M0.2 -0.5L0.34 -0.24M0.26 -0.34L0.4 -0.1M-0.32 -0.24L-0.2 -0.12"
+        />
       </g>
       <g id={`${uid}-conifer-0`}>
         <path
@@ -64,7 +70,11 @@ function GlyphDefs({ uid }: { uid: string }) {
   );
 }
 
-const seaIds = (uid: string) => ({ clip: `${uid}-clip-sea`, wave: `${uid}-waves`, hatch: `${uid}-hatch-wall` });
+const seaIds = (uid: string) => ({
+  clip: `${uid}-clip-sea`,
+  wave: `${uid}-waves`,
+  hatch: `${uid}-hatch-wall`,
+});
 
 export const StaticMap = memo(function StaticMap({ uid }: { uid: string }) {
   const data = getMapData();
@@ -82,9 +92,18 @@ export const StaticMap = memo(function StaticMap({ uid }: { uid: string }) {
           <stop offset="1" className="m2-ground-b" />
         </radialGradient>
         <pattern id={ids.wave} width="1.6" height="1" patternUnits="userSpaceOnUse">
-          <path className="m2-wave" d="M0 0.3q0.2 -0.17 0.4 0t0.4 0t0.4 0t0.4 0M-0.4 0.8q0.2 -0.17 0.4 0t0.4 0t0.4 0t0.4 0t0.4 0" />
+          <path
+            className="m2-wave"
+            d="M0 0.3q0.2 -0.17 0.4 0t0.4 0t0.4 0t0.4 0M-0.4 0.8q0.2 -0.17 0.4 0t0.4 0t0.4 0t0.4 0t0.4 0"
+          />
         </pattern>
-        <pattern id={ids.hatch} width="0.42" height="0.42" patternUnits="userSpaceOnUse" patternTransform="rotate(32)">
+        <pattern
+          id={ids.hatch}
+          width="0.42"
+          height="0.42"
+          patternUnits="userSpaceOnUse"
+          patternTransform="rotate(32)"
+        >
           <path className="m2-wallhatch" d="M0 0V0.42" />
         </pattern>
         <clipPath id={ids.clip}>
@@ -145,6 +164,20 @@ export const StaticMap = memo(function StaticMap({ uid }: { uid: string }) {
               <path className="m2-river-bank" d={right} />
             </g>
           ))}
+        </g>
+
+        {/* Compass rose in the empty south-east corner of the plains; north is up. */}
+        <g className="m2-rose" transform="translate(33 26.5)">
+          <circle r="3.6" className="m2-rose-ring" />
+          <circle r="2.7" className="m2-rose-ring thin" />
+          <path
+            className="m2-rose-s"
+            d="M0 4.6L0.75 0L-0.75 0ZM-4.6 0L0 -0.75L0 0.75ZM4.6 0L0 -0.75L0 0.75Z"
+          />
+          <path className="m2-rose-n" d="M0 -4.6L0.75 0L-0.75 0Z" />
+          <text className="m2-rose-text" y="-5.4" textAnchor="middle">
+            N
+          </text>
         </g>
 
         {/* Canyon walls: banded strata, hatching, a ragged cliff edge and a vertical caption. */}

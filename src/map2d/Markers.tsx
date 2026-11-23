@@ -79,7 +79,13 @@ function Shape({ l }: { l: Landmark }) {
   }
 }
 
-const LABEL_Y: Record<Landmark['kind'], number> = { castle: 16, tower: 13, fort: 13, bridge: 12, olympus: 20 };
+const LABEL_Y: Record<Landmark['kind'], number> = {
+  castle: 16,
+  tower: 13,
+  fort: 13,
+  bridge: 12,
+  olympus: 20,
+};
 
 /** Labels for small features appear only once zoomed in this many px per km. */
 const MINOR_LABEL_SCALE = 26;
@@ -95,7 +101,16 @@ interface MarkerProps {
   onHover: (id: string | null) => void;
 }
 
-const Marker = memo(function Marker({ l, k, selected, hovered, showLabel, label, onSelect, onHover }: MarkerProps) {
+const Marker = memo(function Marker({
+  l,
+  k,
+  selected,
+  hovered,
+  showLabel,
+  label,
+  onSelect,
+  onHover,
+}: MarkerProps) {
   const onKey = (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -104,7 +119,7 @@ const Marker = memo(function Marker({ l, k, selected, hovered, showLabel, label,
   };
   const cls = `m2-marker m2-${l.kind}${selected ? ' is-selected' : ''}${hovered ? ' is-hover' : ''}`;
   const inferred = l.confidence !== 'canon' ? ', inferred position' : '';
-  const aria = `${l.name}${l.house ? '' : ''}${inferred}`;
+  const aria = `${l.name}${inferred}`;
   return (
     <g
       className={cls}
@@ -209,7 +224,11 @@ interface LayerProps {
   onHover: (id: string | null) => void;
 }
 
-export const MapLabels = memo(function MapLabels({ scale, labels, inferred }: Pick<LayerProps, 'scale' | 'labels' | 'inferred'>) {
+export const MapLabels = memo(function MapLabels({
+  scale,
+  labels,
+  inferred,
+}: Pick<LayerProps, 'scale' | 'labels' | 'inferred'>) {
   const regions = useMemo(buildRegionLabels, []);
   const rivers = useMemo(buildRiverLabels, []);
   if (!labels) return null;
@@ -293,7 +312,13 @@ export const MarkerLayer = memo(function MarkerLayer({
 });
 
 /** Mini variant: plain House-coloured dots, no lettering, nothing focusable. */
-export const MiniMarkers = memo(function MiniMarkers({ selectedId, inferred }: { selectedId: string | null; inferred: boolean }) {
+export const MiniMarkers = memo(function MiniMarkers({
+  selectedId,
+  inferred,
+}: {
+  selectedId: string | null;
+  inferred: boolean;
+}) {
   return (
     <g className="m2-mini-markers" aria-hidden="true">
       {MARKERS.filter((l) => l.kind !== 'bridge' && (inferred || l.confidence === 'canon')).map((l) => {

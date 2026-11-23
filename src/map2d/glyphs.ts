@@ -58,10 +58,15 @@ function blocked(p: Vec2, margin = 0): boolean {
   return false;
 }
 
-function glyphsFor(region: Region, make: (p: Vec2, rnd: () => number) => Glyph | null, spacing: {
-  min: (p: Vec2) => number;
-  max: number;
-}, max: number): Glyph[] {
+function glyphsFor(
+  region: Region,
+  make: (p: Vec2, rnd: () => number) => Glyph | null,
+  spacing: {
+    min: (p: Vec2) => number;
+    max: number;
+  },
+  max: number,
+): Glyph[] {
   const rnd = mulberry32(seedFrom(`glyph:${region.id}`) ^ 0x9e3779b9);
   const pts = scatterInPolygon(region.polygon, {
     seed: seedFrom(`scatter:${region.id}`),
@@ -120,7 +125,14 @@ export function buildGlyphs(): Glyph[] {
       (p, rnd) =>
         rnd() < 0.25
           ? { kind: 'conifer', v: 0, x: p[0], z: p[1], w: 0.5 + rnd() * 0.12, h: 0.8 + rnd() * 0.25 }
-          : { kind: 'broadleaf', v: rnd() < 0.5 ? 0 : 1, x: p[0], z: p[1], w: 0.62 + rnd() * 0.16, h: 0.72 + rnd() * 0.18 },
+          : {
+              kind: 'broadleaf',
+              v: rnd() < 0.5 ? 0 : 1,
+              x: p[0],
+              z: p[1],
+              w: 0.62 + rnd() * 0.16,
+              h: 0.72 + rnd() * 0.18,
+            },
       { min: () => 0.82, max: 0.85 },
       760,
     ),
