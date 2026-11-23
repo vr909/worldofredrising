@@ -42,3 +42,34 @@ export const PlaceContent = z.object({
 });
 
 export type PlaceContent = z.infer<typeof PlaceContent>;
+
+/**
+ * Per-House lore (src/content/houses.ts). Book 1 only; every fact carries PDF page numbers.
+ * Only the Proctor of Mars (Fitchner) is named in Book 1; other Proctors are known by their House name,
+ * so `proctor` is optional and `proctorNote` describes what the book shows of them.
+ */
+export const HouseContent = z.object({
+  /** HouseId from src/world/houses.ts. */
+  id: z.string(),
+  /** The Proctor's name, only if Book 1 gives one. */
+  proctor: z.string().optional(),
+  /** One line on the Proctor, if the book shows anything about them. */
+  proctorNote: z.string().min(10).max(200).optional(),
+  /** Notable students named in Book 1 (0-6: some Houses have no named student). */
+  students: z
+    .array(
+      z.object({
+        name: z.string().min(2),
+        /** One line on who they are and what Book 1 reveals about them. */
+        note: z.string().min(10).max(180),
+        /** PDF page where the note is supported. */
+        page: z.number().int().positive(),
+      }),
+    )
+    .max(6),
+  /** What happens to the House in Book 1, 1-3 sentences. Spoilers allowed. */
+  fate: z.string().min(20).max(500),
+  pages: z.array(z.number().int().positive()).min(1),
+});
+
+export type HouseContent = z.infer<typeof HouseContent>;
