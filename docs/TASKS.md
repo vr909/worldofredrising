@@ -14,7 +14,7 @@ but get refined at the start of their milestone with what we learn (expect chang
 | T03 | M1 | Water: rivers, sea, loch, ice | Sonnet | — | Done |
 | T04 | M1 | Sky, light, fog, mist, moons | Sonnet | — | Done |
 | T09 | M1 | Lore content for every place | Sonnet | — | Done |
-| T05 | M2-A | Castle kit + per-House recipes, towers, bridge, fort | Sonnet | T01 | Ready |
+| T05 | M2-A | Castle kit + per-House recipes, towers, bridge, fort | Sonnet | T01 | Done |
 | T06 | M2-B | Olympus | Sonnet | T04 | Scoped |
 | T07 | M2-B | Vegetation | Sonnet | T01, T02, T14 | Scoped |
 | T08 | M2-B | Sigils + banners | Sonnet | T05, T17 | Scoped |
@@ -22,8 +22,8 @@ but get refined at the start of their milestone with what we learn (expect chang
 | T11 | M3 | UI: placards, index, minimap, gate, about, mobile | Sonnet | T08, T09 | Scoped |
 | T12 | M3 | In-world labels + hover/selection markers | Sonnet | T05, T08 | Scoped |
 | T13 | M3 | Weather + season orchestration | Sonnet | T02, T03, T07 | Scoped |
-| T14 | M2-A | Performance foundation (moved up) | Sonnet | — | Ready |
-| T17 | M2-A | 2D map view (new) | Sonnet | — | Ready |
+| T14 | M2-A | Performance foundation (moved up) | Sonnet | — | Done (real-GPU gain to confirm on hardware) |
+| T17 | M2-A | 2D map view (new) | Sonnet | — | Done |
 | T15 | M4 | Post-processing + colour grade | Sonnet | M3 | Scoped |
 | T16 | M4 | Accessibility + no-WebGL fallback | Sonnet | T11 | Scoped |
 | L-n | all | Lead: review, merge, art-direction pass, journal, milestone demo | Opus | — | Ongoing |
