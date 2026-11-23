@@ -50,6 +50,16 @@ export interface AppState {
 
 const start = readStartParams();
 
+/**
+ * Default render tier. Measured after M1 (docs/learning/01-m1-the-land.md): 'high' costs ~2.1x 'medium' per
+ * frame for an almost identical overview, so medium is the default; touch devices start on low.
+ * ?quality=high opts in. (T14 will replace this guess with adaptive quality.)
+ */
+function defaultQuality(): Quality {
+  if (typeof window === 'undefined') return 'medium';
+  return window.matchMedia?.('(pointer: coarse)').matches ? 'low' : 'medium';
+}
+
 export const useStore = create<AppState>()((set) => ({
   ready: false,
   entered: !start.intro,
@@ -58,7 +68,7 @@ export const useStore = create<AppState>()((set) => ({
   selectedId: start.selected,
   hoveredId: null,
   layers: { labels: true, banners: true, inferred: true },
-  quality: start.quality ?? 'high',
+  quality: start.quality ?? defaultQuality(),
   cameraRequest: { shot: start.selected ?? start.view ?? 'overview', nonce: 0, instant: true },
 
   setReady: () => set({ ready: true }),

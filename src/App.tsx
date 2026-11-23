@@ -1,6 +1,7 @@
+import { Stats } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { Scene } from './scene/Scene';
-import { useStore } from './state/store';
+import { START_PARAMS, useStore } from './state/store';
 import { HeightfieldProvider } from './terrain/HeightfieldContext';
 import { Hud } from './ui/Hud';
 
@@ -14,12 +15,14 @@ export function App() {
       >
         <Canvas
           shadows="percentage"
-          dpr={quality === 'high' ? [1, 2] : 1}
+          // Pixel density is the biggest fragment-cost lever: 2x DPR measured +42% frame time.
+          dpr={quality === 'high' ? [1, 1.5] : 1}
           camera={{ fov: 35, near: 0.05, far: 600, position: [0, 62, 88] }}
           gl={{ antialias: true, preserveDrawingBuffer: true }}
           onPointerMissed={() => useStore.getState().hover(null)}
         >
           <Scene />
+          {START_PARAMS.stats && <Stats />}
         </Canvas>
       </HeightfieldProvider>
       <Hud />

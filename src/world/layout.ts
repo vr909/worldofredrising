@@ -441,7 +441,7 @@ export const LANDMARKS: readonly Landmark[] = [
     kind: 'tower',
     name: 'Phobos Tower',
     house: 'mars',
-    position: [10.5, -15],
+    position: [13.2, -17.4], // ~5 km SW of the castle (p.168); NW of here lies Deimos
     facingDeg: 180,
     site: { ground: 'hill', radius: 0.35, height: 0.12 },
     confidence: 'canon',

@@ -178,3 +178,53 @@
   text-transform: uppercase;
   font-size: 13px;
 }
+
+/* Compass rose (bottom-right). Rotates with the camera via --cam-heading. */
+.hud-compass {
+  position: absolute;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 1px solid var(--glass-line);
+  border-radius: 50%;
+  background: var(--glass);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+.hud-compass svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.hud-compass-rose {
+  transform: rotate(var(--cam-heading, 0deg));
+  transition: transform 80ms linear;
+}
+.hud-compass .ring {
+  fill: none;
+  stroke: var(--glass-line);
+  stroke-width: 1.5;
+}
+.hud-compass .needle-n {
+  fill: var(--blood);
+}
+.hud-compass .needle-s {
+  fill: var(--parchment);
+  opacity: 0.85;
+}
+.hud-compass .needle-ew {
+  fill: var(--gold);
+  opacity: 0.55;
+}
+.hud-compass .cardinal {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--parchment);
+  text-anchor: middle;
+}
+.hud-compass .cardinal.n {
+  fill: var(--gold);
+}

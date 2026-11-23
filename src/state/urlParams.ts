@@ -6,6 +6,7 @@
  *   ?intro=0          skip the intro flight and spoiler gate
  *   ?ui=0             hide the HUD (clean screenshots)
  *   ?quality=low|medium|high
+ *   ?stats=1          show an FPS / frame-time overlay (for performance reports)
  * The hash (#castle-mars) also selects a place, for shareable links.
  */
 export type Quality = 'low' | 'medium' | 'high';
@@ -18,6 +19,7 @@ export interface StartParams {
   intro: boolean;
   ui: boolean;
   quality: Quality | null;
+  stats: boolean;
   selected: string | null;
 }
 
@@ -31,6 +33,7 @@ export function readStartParams(loc: Pick<Location, 'search' | 'hash'> = window.
     intro: q.get('intro') !== '0',
     ui: q.get('ui') !== '0',
     quality: quality === 'low' || quality === 'medium' || quality === 'high' ? quality : null,
+    stats: q.get('stats') === '1',
     selected: loc.hash.length > 1 ? decodeURIComponent(loc.hash.slice(1)) : null,
   };
 }

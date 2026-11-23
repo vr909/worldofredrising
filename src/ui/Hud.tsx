@@ -6,6 +6,7 @@ import { PLACES } from '../content/places';
 import { useStore } from '../state/store';
 import { HOUSES } from '../world/houses';
 import { LANDMARKS, landmarkById } from '../world/layout';
+import { Compass } from './Compass';
 import './hud.css';
 
 export function Hud() {
@@ -21,6 +22,7 @@ export function Hud() {
       <PlaceIndex />
       <PlacePanel />
       <SeasonToggle />
+      <Compass />
       {!entered && <EntryGate />}
     </div>
   );
