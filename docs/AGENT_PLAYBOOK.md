@@ -106,3 +106,7 @@ Taste notes from the lead: <specific guidance, pitfalls, what "great" looks like
 6. **Screenshots are slow with high-detail terrain in software GL (20–75 s per view).** Ask agents to shoot a
    few views per call and to use `SHOT_SIZE=1200x750` while iterating.
 7. **"Looked at every image" is checked.** If a report admits a view wasn't opened, the lead opens it before merging.
+8. **Every note in a report becomes a decision.** Not just "Requested changes": each "Known issue", "Decision" or
+   aside gets triaged into the backlog or an explicit "won't do". (M1: a builder flagged a missing loch; it was
+   only fixed after the human found it.)
+9. **Measure budgets every milestone.** Run the frame-cost probe at each milestone gate, not only in the final perf ticket.

@@ -87,6 +87,21 @@ Round 2 fixed everything on the list. The lead's own integration pass then found
 Still placeholder (by design, M2): castles, Olympus, forests. Known polish items for M4: the half-frozen ground reads
 muddy olive at mid-transition; the plateau rim is slightly stair-stepped at grid resolution; marsh pools are busy from the overview.
 
+## Product-owner review (after the M1 demo)
+
+The human reviewed the live map and raised four points. All four were right or worth acting on:
+
+| Feedback | What we found | Action |
+|---|---|---|
+| "It's laggy" | Default tier was *high* with 2× pixel density: measured **2.1×** the frame cost of *medium* (3× on retina) for a near-identical view. Budgets existed in ARCHITECTURE §7 but **nobody measured them**. | Default to medium, cap DPR, add `?stats=1`; pull the performance ticket (T14) forward into M2 |
+| "Is that the lake where Darrow and Cassius hid?" | No. That is the supper loch (p.190); the hiding loch is ~20 km **east** (pp.209–214). **T09 had flagged this in its M1 report**, and the lead read it as a content note and never turned it into a map change. | Added *The Dark Loch* (T01) and its lore card (T09) |
+| "Should there be a 2D map?" | One 2D map from the same layout data serves five jobs: orientation, low-power devices, no-WebGL fallback, the minimap, sharing | Proposed as T17 |
+| "Do directions make sense on Mars?" | Yes (rotation axis; the book even has a compass, p.183). An audit found 12/14 directional statements matched; Phobos sat at 8.6 km instead of 5; Ceres's "southern plains" conflicts with the printed map | Phobos fixed, Ceres note on its card, compass rose added |
+
+**Lessons:** a domain expert looking at the real thing finds what specs and agents miss, so put the product in
+front of them early. And a builder's *notes* are findings too, not only its "Requested changes": the lead now
+turns every note in a report into a backlog item or an explicit "won't do".
+
 ## What we'd do differently
 
 - Run a **"combined-camera" spec check** before launch: for each hero view, list every system that's
