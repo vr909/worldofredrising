@@ -138,7 +138,7 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
   };
 
   /** Ridged multifractal with derivative damping: sharp crests, smooth erosion-like flanks. 0..1. */
-  const ridged = (x: number, z: number, f0: number, oct: number, damp: number): number => {
+  const ridged = (x: number, z: number, f0: number, oct: number, damp: number, eps = 0.02): number => {
     let sum = 0;
     let amp = 1;
     let norm = 0;
@@ -148,7 +148,7 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
     for (let o = 0; o < oct; o++) {
       if (o > 0 && f > maxFreq) break;
       const v = nz.sample(x * f, z * f);
-      const sq = Math.sqrt(v * v + 0.02);
+      const sq = Math.sqrt(v * v + eps);
       // Slightly rounded |v| so crests are ridges, not razor creases; its derivative stays continuous.
       const r = 1 - sq;
       const k = (-v / sq) * f * amp * 2 * r;
@@ -339,13 +339,13 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
   const highlandRelief = (x: number, z: number): number => {
     const wx = x + 1.6 * nz.sample(x * 0.1 + 5.3, z * 0.1 + 2.2);
     const wz = z + 1.6 * nz.sample(x * 0.1 + 8.8, z * 0.1 + 6.1);
-    const crag = ridged(wx, wz, 0.27, 5, 1.4);
+    const crag = ridged(wx, wz, 0.27, 4, 1.4, 0.07);
     const rolling = 0.5 + 0.5 * fbm(x, z, 0.09, 3);
     // Taller hills cup Mars Castle's glen to the north and south.
     const dz = Math.abs(z - marsZ);
     const dx = Math.abs(x - marsX);
     const cup = smoothstep(2.8, 5.2, dz) * (1 - smoothstep(7.5, 11, dz)) * (1 - smoothstep(7, 13, dx));
-    const shape = 0.22 * rolling + 0.78 * clamp01(crag * 1.5);
+    const shape = 0.4 * rolling + 0.6 * clamp01(crag * 1.4);
     return 1.0 * shape * (1 + 0.5 * cup);
   };
 
@@ -369,7 +369,7 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
   // ------------------------------------------------------------------------------------------
   const WALL_START = -1.5;
   const WALL_SPAN = 5.5;
-  const STEP = 0.55;
+  const STEP = 0.9;
   /**
    * g = ground with all its relief, glow = the smooth base of that ground (no relief). The terraces are
    * laid on the smooth base so ledges stay level and continuous; relief fades out into the wall face.
@@ -380,10 +380,10 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
     if (e < WALL_START - 1.5) return g;
     const side = east ? 11 : 23;
     // Buttresses (broad bulges) and erosion gullies pushing the face in and out along z.
+    // Long, calm ledge lines: only slow variation along z, plus an occasional gully or buttress every few km.
+    const gully = smoothstep(0.45, 0.8, nz.sample(z * 0.07 + side, 15.3));
     const buttress =
-      1.1 * nz.sample(z * 0.26 + side, 4.4) +
-      0.4 * nz.sample(z * 0.7 + side, 9.1 + e * 0.1) +
-      0.25 * Math.abs(nz.sample(z * 1.1, side + e * 0.1));
+      0.7 * nz.sample(z * 0.1 + side, 4.4) - 1.6 * gully + 0.12 * nz.sample(z * 0.5 + side, 9.1);
     const s = clamp01((e + buttress - WALL_START) / WALL_SPAN);
     const top = BOUNDS.wallHeight + 0.45 * fbm(x * 0.7, z * 0.7, 0.5, 3);
     const full = Math.max(0.3, top - glow);
@@ -391,7 +391,7 @@ export function generateTerrainData(opts: TerrainOptions): TerrainData {
     const q = rise / STEP;
     const fl = Math.floor(q);
     const terr = (fl + smoothstep(0.5, 1, q - fl)) * STEP;
-    const strength = 0.45 + 0.55 * clamp01(0.5 + 0.9 * nz.sample(z * 0.18 + side, 21.7));
+    const strength = 0.8 + 0.2 * clamp01(0.5 + 0.9 * nz.sample(z * 0.06 + side, 21.7));
     const face = glow + lerp(lerp(rise, terr, strength), rise, smoothstep(0.8, 1, s));
     return face + (g - glow) * (1 - smoothstep(0, 0.5, s));
   };
