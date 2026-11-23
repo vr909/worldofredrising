@@ -7,6 +7,7 @@
  *   npm run shot -- castle-mars olympus overview-winter
  *   SHOT_URL=http://localhost:5173 npm run shot   # reuse a running dev server
  *   SHOT_SIZE=1280x720 npm run shot
+ *   SHOT_PARAMS='software=1' npm run shot -- overview   # extra URL params (e.g. force the software/cheap path)
  *
  * Any place id from src/world/layout.ts is a valid view; append "-winter" for the winter season,
  * or "@0.5" to pin the season blend (0 summer … 1 winter), e.g. castle-ceres@0.5 to see rivers mid-freeze.
@@ -90,6 +91,7 @@ try {
     const qs = new URLSearchParams({ view: shot, intro: '0', season: winter ? 'winter' : 'summer' });
     if (pinned !== undefined) qs.set('seasonT', pinned);
     if (is2d) qs.set('mode', '2d');
+    for (const [k, v] of new URLSearchParams(process.env.SHOT_PARAMS ?? '')) qs.set(k, v);
     if (process.env.SHOT_UI !== '1') qs.set('ui', '0');
     const t0 = Date.now();
     // In 2D, a place view also selects the place (hash), so its placard opens.

@@ -50,3 +50,17 @@
     flex-wrap: wrap;
   }
 }
+
+.perf-readout {
+  position: fixed;
+  left: 84px;
+  top: 0;
+  z-index: 10000;
+  padding: 4px 8px;
+  font:
+    11px/1.4 ui-monospace,
+    monospace;
+  color: #0f0;
+  background: rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}

@@ -2,6 +2,7 @@ import { Stats } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { Map2D } from './map2d/Map2D';
 import { PerfManager } from './perf/PerfManager';
+import { PerfReadout } from './perf/PerfReadout';
 import { Scene } from './scene/Scene';
 import { START_PARAMS, useStore } from './state/store';
 import { HeightfieldProvider } from './terrain/HeightfieldContext';
@@ -37,6 +38,7 @@ export function App() {
         )}
       </HeightfieldProvider>
       {!is3d && <Map2D />}
+      {START_PARAMS.stats && is3d && <PerfReadout />}
       <Hud />
     </>
   );

@@ -4,6 +4,8 @@
  * here; those live in refs or src/render/uniforms.ts.
  */
 import { create } from 'zustand';
+import { detectRenderer } from '../perf/detect';
+import { isAutomated } from '../perf/params';
 import { readStartParams, type Quality } from './urlParams';
 
 export type Season = 'summer' | 'winter';
@@ -86,6 +88,9 @@ const start = readStartParams();
  */
 function defaultQuality(): Quality {
   if (typeof window === 'undefined') return 'medium';
+  // Software WebGL (no GPU) starts on the cheapest heightfield tier: it is vertex-bound (T14 report).
+  // Skipped under automation so screenshots stay deterministic.
+  if (!isAutomated() && detectRenderer().software) return 'low';
   return window.matchMedia?.('(pointer: coarse)').matches ? 'low' : 'medium';
 }
 
