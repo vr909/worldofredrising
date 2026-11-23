@@ -17,6 +17,30 @@ export interface Layers {
   inferred: boolean;
 }
 
+export type ViewMode = '3d' | '2d';
+
+/**
+ * Runtime performance knobs. Owned by T14 (src/perf/): it detects the device and adapts these at runtime;
+ * every system READS the flags relevant to it. Changing them must never regenerate the heightfield
+ * (the heightfield tier is `quality`, chosen once at startup).
+ */
+export interface PerfFlags {
+  /** WebGL is rendered without a GPU (SwiftShader, llvmpipe, Microsoft Basic Render...). */
+  software: boolean;
+  /** Canvas device-pixel ratio. */
+  dpr: number;
+  /** Realtime sun shadows for landmarks/trees. */
+  shadows: boolean;
+  /** Mist banks and the Olympus cloud collar. */
+  mist: boolean;
+  /** Terrain shader detail: 0 = cheapest (baked), 1 = reduced, 2 = full per-pixel painterly. */
+  detail: 0 | 1 | 2;
+  /** Cap for ambient animation (water flow, mist drift) when nothing else is moving. 0 = static. */
+  ambientFps: number;
+  /** R3F frame loop. 'demand' renders only on invalidate(); T14 drives ambient ticks and invalidation. */
+  frameloop: 'always' | 'demand';
+}
+
 export interface CameraRequest {
   /** A shot id from src/camera/shots.ts (usually a place id, or 'overview'). */
   shot: string;
@@ -37,6 +61,9 @@ export interface AppState {
   layers: Layers;
   quality: Quality;
   cameraRequest: CameraRequest | null;
+  /** 3D diorama or flat 2D map. */
+  viewMode: ViewMode;
+  perf: PerfFlags;
 
   setReady: () => void;
   enter: () => void;
@@ -46,6 +73,8 @@ export interface AppState {
   toggleLayer: (k: keyof Layers) => void;
   setQuality: (q: Quality) => void;
   flyTo: (shot: string, instant?: boolean) => void;
+  setViewMode: (m: ViewMode) => void;
+  setPerf: (p: Partial<PerfFlags>) => void;
 }
 
 const start = readStartParams();
@@ -60,6 +89,16 @@ function defaultQuality(): Quality {
   return window.matchMedia?.('(pointer: coarse)').matches ? 'low' : 'medium';
 }
 
+/** Starting perf flags per heightfield tier (T14 refines these from real device detection). */
+export function perfForQuality(q: Quality): PerfFlags {
+  const base = { software: false, frameloop: 'always' as const };
+  if (q === 'high') return { ...base, dpr: 1.5, shadows: true, mist: true, detail: 2, ambientFps: 60 };
+  if (q === 'medium') return { ...base, dpr: 1, shadows: true, mist: true, detail: 2, ambientFps: 60 };
+  return { ...base, dpr: 1, shadows: false, mist: true, detail: 1, ambientFps: 30 };
+}
+
+const startQuality = start.quality ?? defaultQuality();
+
 export const useStore = create<AppState>()((set) => ({
   ready: false,
   entered: !start.intro,
@@ -68,8 +107,10 @@ export const useStore = create<AppState>()((set) => ({
   selectedId: start.selected,
   hoveredId: null,
   layers: { labels: true, banners: true, inferred: true },
-  quality: start.quality ?? defaultQuality(),
+  quality: startQuality,
   cameraRequest: { shot: start.selected ?? start.view ?? 'overview', nonce: 0, instant: true },
+  viewMode: start.mode,
+  perf: perfForQuality(startQuality),
 
   setReady: () => set({ ready: true }),
   enter: () => set({ entered: true }),
@@ -84,6 +125,8 @@ export const useStore = create<AppState>()((set) => ({
   setQuality: (quality) => set({ quality }),
   flyTo: (shot, instant) =>
     set((s) => ({ cameraRequest: { shot, instant, nonce: (s.cameraRequest?.nonce ?? 0) + 1 } })),
+  setViewMode: (viewMode) => set({ viewMode }),
+  setPerf: (p) => set((s) => ({ perf: { ...s.perf, ...p } })),
 }));
 
 export const START_PARAMS = start;
