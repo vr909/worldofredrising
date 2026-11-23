@@ -62,9 +62,30 @@
 | Continue the same agents for round 2 rather than spawn new ones | They keep their context (their own code, earlier decisions), so a short, precise message is enough |
 | Lead makes palette and tooling changes before round 2 | Shared files are lead-owned; doing them first means every agent's round-2 merge includes them |
 
+## Round 2 and the lead's final pass
+
+Round 2 fixed everything on the list. The lead's own integration pass then found two more issues:
+
+- **Winter looked like camouflage.** Bare-ground patches ~0.4 km wide were speckle from 100 km away. Fix: patches ~2–3 km
+  wide, gathered under woodland and near water, so the open plains stay white.
+- **The canyon walls still weren't red. This one was a contract bug.** T01 wrote canyon stone = 1.0 *and* rock = 0.6 *and*
+  some grass on the walls. T02's shader normalised all weights, so the strata came out at ~50% strength, diluted to
+  cream-grey. Both agents followed the `SurfaceChannels` contract, which never said how overlapping weights combine. Fix:
+  wall stone is now *exclusive* (it displaces other channels), and that rule is written into the contract's doc comment.
+  **Lesson:** an interface is more than its types. It also needs its *semantics* (ranges, overlap, precedence), or each
+  side fills the gap with a different reasonable assumption. Deepening the palette alone changed nothing; finding the
+  cause meant reading both sides of the interface.
+
 ## Before and after
 
-*(Filled in after round 2: M0 graybox vs M1 final, overview and Mars.)*
+| M0 graybox | M1 |
+|---|---|
+| ![M0 overview](../images/m0-overview.jpg) | ![M1 overview](../images/m1-overview.jpg) |
+| ![M0 Mars](../images/m0-castle-mars.jpg) | ![M1 Mars](../images/m1-castle-mars.jpg) |
+| ![M0 Olympus](../images/m0-olympus.jpg) | ![M1 winter](../images/m1-overview-winter.jpg) |
+
+Still placeholder (by design, M2): castles, Olympus, forests. Known polish items for M4: the half-frozen ground reads
+muddy olive at mid-transition; the plateau rim is slightly stair-stepped at grid resolution; marsh pools are busy from the overview.
 
 ## What we'd do differently
 

@@ -76,7 +76,9 @@ export const WINTER: SeasonPalette = {
 };
 
 /** Martian canyon-wall strata, bottom → top. Never changes with season except snow dusting. */
-export const CANYON_STRATA = ['#6E3F2A', '#8C5A3C', '#A26B47', '#B98560', '#9A6446', '#C49A74'] as const;
+// Deep, saturated rusts: the walls sit 40-90 km from the overview camera, and warm haze + golden-hour light
+// bleached the original lighter tans to cream (M1 review). These survive the fog and still read Martian red.
+export const CANYON_STRATA = ['#5A2416', '#7A321E', '#963F24', '#A9502C', '#8C3B22', '#B5623A'] as const;
 
 /** Sun placement: golden hour from the south-west, so slopes read as relief from the default view. */
 export const SUN = { azimuthDeg: 235, elevationDeg: 24 } as const;

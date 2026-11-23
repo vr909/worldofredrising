@@ -7,10 +7,16 @@ the misty highlands of House Mars, the Argos running to the South Sea, the Great
 (including the one that isn't on the map) and the floating mountain of Olympus. Fly in to any castle, read
 lore placards with page references, and switch between summer and the winter the Argos froze.
 
-> Status: **M0 Foundations complete**: research, decisions, contracts, graybox skeleton and pipeline.
-> See the [task board](docs/TASKS.md) for what's next.
+> Status: **M1 The Land complete**: terrain, painterly materials, water, sky and lore for every place.
+> Castles, Olympus and forests arrive in M2. See the [task board](docs/TASKS.md).
+
+![The Institute valley at the end of M1](docs/images/m1-overview.jpg)
+
+<details><summary>The world layout (2D)</summary>
 
 ![Layout of the Institute valley, drawn from the world contract](docs/images/layout-preview.svg)
+
+</details>
 
 ## Run it
 

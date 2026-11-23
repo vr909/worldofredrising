@@ -34,6 +34,12 @@ vec3 paintTerrain() {
   // --- splat weights ------------------------------------------------------------------------
   vec4 A = vSplatA;
   vec4 B = vSplatB;
+  // Canyon wall stone is exclusive (SurfaceChannels contract): where it is present it displaces the other
+  // channels instead of being averaged with them. T01 also writes rock/grass on the walls, and plain
+  // normalisation diluted the strata to ~50%, which read cream-grey from the overview (M1 integration).
+  float wallRaw = B.z;
+  A *= 1.0 - wallRaw;
+  B.xyw *= 1.0 - wallRaw;
   float sum = dot(A, vec4(1.0)) + dot(B, vec4(1.0));
   if (sum < 0.01) {
     A = vec4(1.0, 0.0, 0.0, 0.0);
@@ -110,9 +116,11 @@ vec3 paintTerrain() {
   snow = smoothstep(0.12, 0.88, snow + (fine - 0.5) * 0.6 * snow * (1.0 - snow));
   snow *= 1.0 - 0.3 * A.y * smoothstep(0.35, 0.75, blotch); // woodland keeps a few dark gaps
   // Patchy low-elevation coverage: ~10-25% dull winter ground, more under trees and near water.
-  float bareN = tFbm(p * 1.3 + 30.0) * 0.7 + tNoise(p * 4.5) * 0.3;
-  float bareT = 0.6 - 0.07 * A.y - 0.1 * wetness - 0.06 * B.x - 0.05 * blotch;
-  float bare = smoothstep(bareT, bareT + 0.05, bareN) * (1.0 - smoothstep(1.0, 1.6, h));
+  // Lead M1 pass: larger, fewer patches (~2-3 km) so the overview doesn't read as camouflage; open plains stay
+  // mostly white, bare ground gathers under woodland, near water and in the marsh.
+  float bareN = tFbm(p * 0.38 + 30.0) * 0.8 + tNoise(p * 2.2) * 0.2;
+  float bareT = 0.64 - 0.1 * A.y - 0.12 * wetness - 0.06 * B.x - 0.04 * blotch;
+  float bare = smoothstep(bareT, bareT + 0.08, bareN) * (1.0 - smoothstep(1.0, 1.6, h));
   snow *= 1.0 - bare * 0.92;
   col *= 1.0 - 0.15 * bare * uSeason;
   // Cool blue-grey snow in shade / AO, warm white in sun, faint wind-drift streaks.

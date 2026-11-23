@@ -55,7 +55,7 @@ Source of truth in code: `src/render/palette.ts` (scene), `src/world/houses.ts` 
 | rock / highRock | `#8A7E70` / `#A39A8E` | Slopes > ~35°, peaks |
 | sandstone | `#C9A877` | Postern Hills, Minerva |
 | sand / marsh | `#D8C79A` / `#7C8A62` | Shores / marshes |
-| canyon strata | `#6E3F2A → #C49A74` (6 bands) | Canyon walls, slab sides |
+| canyon strata | `#5A2416 → #B5623A` (6 deep rust bands) | Canyon walls, slab sides. Kept dark and saturated so they survive 40–90 km of warm haze |
 | water deep / shallow / foam | `#2F5F7A` / `#5E9AA8` / `#E8F1EE` | |
 
 ### Scene — winter

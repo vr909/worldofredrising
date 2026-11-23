@@ -9,10 +9,10 @@ but get refined at the start of their milestone with what we learn (expect chang
 
 | Ticket | Milestone | Title | Model | Depends on | Status |
 |---|---|---|---|---|---|
-| T01 | M1 | Terrain generator v2 | Sonnet | — | Merged · round 2 in progress |
-| T02 | M1 | Painterly terrain material + diorama slab | Sonnet | — (uses baseline heightfield) | Merged · round 2 in progress |
-| T03 | M1 | Water: rivers, sea, loch, ice | Sonnet | — | Merged · round 2 in progress |
-| T04 | M1 | Sky, light, fog, mist, moons | Sonnet | — | Merged · round 2 in progress |
+| T01 | M1 | Terrain generator v2 | Sonnet | — | Done |
+| T02 | M1 | Painterly terrain material + diorama slab | Sonnet | — (uses baseline heightfield) | Done |
+| T03 | M1 | Water: rivers, sea, loch, ice | Sonnet | — | Done |
+| T04 | M1 | Sky, light, fog, mist, moons | Sonnet | — | Done |
 | T09 | M1 | Lore content for every place | Sonnet | — | Done |
 | T05 | M2 | Castle kit + per-House recipes, towers, bridge, fort | Sonnet | T01 | Scoped |
 | T06 | M2 | Olympus | Sonnet | T04 | Scoped |

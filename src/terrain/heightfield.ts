@@ -13,7 +13,12 @@ import type { Vec2 } from '../world/types';
 import { buildHeightfield } from './gen/build';
 import { generateTerrainData } from './gen/generate';
 
-/** Splat channels: per-vertex surface weights 0..255, packed RGBA. Shader decides colours. */
+/**
+ * Splat channels: per-vertex surface weights 0..255, packed RGBA. Shader decides colours.
+ * Combination rule (made explicit after M1 integration): weights may overlap and need not sum to 255; the
+ * shader normalises them. EXCEPTION: canyon wall stone (splatB.b) is exclusive. Where it is w > 0, every
+ * other channel is scaled by (1 - w) before normalising, so walls read as pure strata.
+ */
 export interface SurfaceChannels {
   /** R = grass/meadow, G = forest floor, B = bare rock, A = sand/beach */
   splatA: Uint8Array;
