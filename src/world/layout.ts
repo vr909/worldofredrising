@@ -442,7 +442,7 @@ export const LANDMARKS: readonly Landmark[] = [
     name: 'Pluto’s Warrens',
     house: 'pluto',
     position: [-27.5, -1.5],
-    facingDeg: 90,
+    facingDeg: 200, // faces SSW into the golden-hour sun; east-facing, the cliff could only ever be lit by fill (M2 review). Book gives no facing.
     site: { ground: 'underground', radius: 0.6 },
     confidence: 'inferred',
   },

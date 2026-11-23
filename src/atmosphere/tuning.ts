@@ -24,8 +24,10 @@ export const AMBIENT_GROUND = {
 
 /** Light rig presets, blended by uSeason. Winter: lower, paler, dimmer. */
 export const RIG = {
-  sunIntensity: { summer: 2.7, winter: 2.0 },
-  hemiIntensity: { summer: 1.0, winter: 0.95 },
+  // Lead M2 pass: stronger fill so faces turned away from the SW golden-hour sun read as cool shade, never black
+  // (DESIGN §3 "warm light, cool shadows"; Pluto's east-facing hillside and Jupiter's gorge were near-black).
+  sunIntensity: { summer: 2.5, winter: 1.9 },
+  hemiIntensity: { summer: 1.5, winter: 1.35 },
   exposure: { summer: 1.0, winter: 0.95 },
   sunElevationDeg: { summer: SUN.elevationDeg, winter: 19 },
   /** Exponential-squared fog density per display km. */

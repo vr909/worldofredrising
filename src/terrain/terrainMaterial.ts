@@ -106,7 +106,7 @@ vWet = wet;`,
       .replace(
         '#include <color_fragment>',
         `#include <color_fragment>
-diffuseColor.rgb = paintTerrain() * mix(0.5, 1.0, vAo);`,
+diffuseColor.rgb = paintTerrain() * mix(0.68, 1.0, vAo); // lead M2: softer AO so cliffs facing away from the sun stay readable`,
       )
       .replace(
         '#include <lights_fragment_end>',

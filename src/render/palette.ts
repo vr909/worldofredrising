@@ -34,7 +34,7 @@ export const SUMMER: SeasonPalette = {
   skyHorizon: '#EBCDA3',
   sun: '#FFD9A3',
   ambientSky: '#BFD3E6',
-  ambientGround: '#6B5A45',
+  ambientGround: '#8C7A60', // lighter warm bounce (M2 lighting pass: shadows were near-black)
   fog: '#DCCBB0',
   terrain: {
     grass: '#86A35A',
