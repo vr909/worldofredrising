@@ -20,7 +20,7 @@ import { sharedUniforms } from '../render/uniforms';
 import { useHeightfield } from '../terrain/HeightfieldContext';
 import { REGIONS, RIVERS, SEA_LEVEL } from '../world/layout';
 import type { Region } from '../world/types';
-import { bakeToTexture, bakeWaterDepth, lochLevel, marshLevel } from './bake';
+import { bakeToTexture, bakeWaterDepth, lochLevel } from './bake';
 import { buildRiversGeometry } from './riverGeometry';
 import commonGlsl from './shaders/common.glsl?raw';
 import riverFrag from './shaders/river.frag.glsl?raw';
@@ -94,15 +94,14 @@ export function Water() {
         level = lochLevel(hf, r.polygon);
         kind = 'loch';
       } else if (r.kind === 'marsh') {
-        level = marshLevel(hf, r.polygon);
+        level = SEA_LEVEL - 0.012; // T01 marsh pool floors are ~-0.04, so a near-sea-level plane fills only the real dips
         kind = 'marsh';
       } else continue;
       const bake = bakeWaterDepth(hf, r.polygon, level, {
-        minGround: kind === 'marsh' ? SEA_LEVEL + 0.004 : undefined,
         distCap: kind === 'sea' ? 2 : 3,
       });
       const tint =
-        kind === 'sea' ? new Color(0, 0, 0) : kind === 'loch' ? new Color('#1F3E4E') : new Color('#34503F');
+        kind === 'sea' ? new Color(0, 0, 0) : kind === 'loch' ? new Color('#1F3E4E') : new Color('#A9C0C6');
       const material = new ShaderMaterial({
         uniforms: {
           ...UniformsLib.fog,
@@ -113,9 +112,9 @@ export function Water() {
           uDepthRef: { value: kind === 'sea' ? 0.4 : kind === 'loch' ? 0.18 : 0.04 },
           uFreezeReach: { value: kind === 'sea' ? 0.55 : 6 },
           uFoamAmt: { value: kind === 'sea' ? 1 : kind === 'loch' ? 0.35 : 0 },
-          uReed: { value: kind === 'sea' ? 0 : 1 },
-          uAlpha: { value: kind === 'marsh' ? 0.9 : 1 },
-          uTint: { value: [tint.r, tint.g, tint.b, kind === 'sea' ? 0 : kind === 'loch' ? 0.35 : 0.7] },
+          uReed: { value: kind === 'sea' ? 0 : kind === 'loch' ? 1 : 0.15 },
+          uAlpha: { value: kind === 'marsh' ? 0.6 : 1 },
+          uTint: { value: [tint.r, tint.g, tint.b, kind === 'sea' ? 0 : kind === 'loch' ? 0.35 : 0.45] },
         },
         vertexShader: stillVert,
         fragmentShader: commonGlsl + stillFrag,
