@@ -14,6 +14,8 @@ import type { Vec2 } from '../world/types';
 export interface MistInstances {
   pos: Float32Array;
   size: Float32Array;
+  /** cos, sin of the bank's long axis in x/z, plus 2 spare floats */
+  dir: Float32Array;
   count: number;
 }
 
@@ -41,6 +43,14 @@ export function lowness(hf: Hf, x: number, z: number, radius = 1.4): number {
   return sum / n - hf.heightAt(x, z);
 }
 
+/** Direction along the contour (valley axis) at a point: perpendicular to the ground gradient. */
+function contourAngle(hf: Hf, x: number, z: number): number {
+  const e = 0.6;
+  const gx = hf.heightAt(x + e, z) - hf.heightAt(x - e, z);
+  const gz = hf.heightAt(x, z + e) - hf.heightAt(x, z - e);
+  return Math.atan2(gx, -gz);
+}
+
 /** Olympus altitude, as the graybox and shots compute it. */
 export function olympusAnchor(hf: Hf): { x: number; y: number; z: number; radius: number } {
   const l = LANDMARKS.find((m) => m.id === 'olympus');
@@ -57,8 +67,19 @@ export function placeMist(hf: Hf, seed = 4242): MistInstances {
   const rng = mulberry32(seed);
   const pos: number[] = [];
   const size: number[] = [];
+  const dir: number[] = [];
   const taken: Vec2[] = [];
-  const push = (x: number, y: number, z: number, w: number, h: number, alpha: number, kind: number) => {
+  const push = (
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+    h: number,
+    alpha: number,
+    kind: number,
+    angle = rng() * Math.PI,
+  ) => {
+    dir.push(Math.cos(angle), Math.sin(angle), 0, 0);
     pos.push(x, y, z, rng());
     size.push(w, h, alpha, kind);
   };
@@ -76,19 +97,19 @@ export function placeMist(hf: Hf, seed = 4242): MistInstances {
       const pz = z + (rng() - 0.5) * 0.5;
       if (!pointInPolygon([px, pz], high)) continue;
       const lo = lowness(hf, px, pz);
-      if (lo < 0.04) continue;
+      if (lo < 0.06) continue;
       cands.push({ x: px, z: pz, score: lo + rng() * 0.15 });
     }
   }
   cands.sort((a, b) => b.score - a.score);
   let n = 0;
   for (const c of cands) {
-    if (n >= 150) break;
-    if (!free(c.x, c.z, 1.0)) continue;
+    if (n >= 55) break;
+    if (!free(c.x, c.z, 2.2)) continue;
     const edge = -signedDistanceToPolygon([c.x, c.z], high); // distance inside the region
     const burn = Math.min(1, Math.max(0.25, edge / 2.5)); // burns off toward the plains
     const y = hf.heightAt(c.x, c.z) + 0.06 + rng() * 0.2;
-    push(c.x, y, c.z, 1.7 + rng() * 1.3, 0.85 + rng() * 0.5, 0.42 * burn, 0);
+    push(c.x, y, c.z, 3 + rng() * 2.2, 0.95 + rng() * 0.5, 0.3 * burn, 0, contourAngle(hf, c.x, c.z));
     taken.push([c.x, c.z]);
     n++;
   }
@@ -96,12 +117,12 @@ export function placeMist(hf: Hf, seed = 4242): MistInstances {
   // Marshes: low sheet of drifting mist over the flats.
   const marsh = regionPoly('southern-marshes');
   let m = 0;
-  for (let tries = 0; tries < 4000 && m < 45; tries++) {
+  for (let tries = 0; tries < 4000 && m < 12; tries++) {
     const x = -22 + rng() * 24;
     const z = 10 + rng() * 10;
-    if (!pointInPolygon([x, z], marsh) || !free(x, z, 1.6)) continue;
+    if (!pointInPolygon([x, z], marsh) || !free(x, z, 3.2)) continue;
     const y = Math.max(hf.heightAt(x, z), 0.02) + 0.08 + rng() * 0.18;
-    push(x, y, z, 3.0 + rng() * 2.0, 1.0 + rng() * 0.5, 0.4, 0);
+    push(x, y, z, 2.5 + rng() * 1.5, 0.35 + rng() * 0.2, 0.17, 0);
     taken.push([x, z]);
     m++;
   }
@@ -122,16 +143,17 @@ export function placeMist(hf: Hf, seed = 4242): MistInstances {
     pts.sort((a, b) => b.score - a.score);
     let k = 0;
     for (const c of pts) {
-      if (k >= 26) break;
-      if (!free(c.x, c.z, 0.8)) continue;
+      if (k >= 9) break;
+      if (!free(c.x, c.z, 1.8)) continue;
       push(
         c.x,
         hf.heightAt(c.x, c.z) + 0.08 + rng() * 0.2,
         c.z,
-        1.5 + rng() * 1.2,
-        0.5 + rng() * 0.35,
-        0.5,
+        3 + rng() * 2,
+        0.9 + rng() * 0.4,
+        0.32,
         0,
+        contourAngle(hf, c.x, c.z),
       );
       taken.push([c.x, c.z]);
       k++;
@@ -149,5 +171,10 @@ export function placeMist(hf: Hf, seed = 4242): MistInstances {
     push(o.x + Math.cos(a) * r, y, o.z + Math.sin(a) * r, 1.7 + rng() * 1.0, 0.8 + rng() * 0.35, 0.78, 1);
   }
 
-  return { pos: Float32Array.from(pos), size: Float32Array.from(size), count: size.length / 4 };
+  return {
+    pos: Float32Array.from(pos),
+    size: Float32Array.from(size),
+    dir: Float32Array.from(dir),
+    count: size.length / 4,
+  };
 }
