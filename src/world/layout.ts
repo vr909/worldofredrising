@@ -190,6 +190,17 @@ export const REGIONS: readonly Region[] = [
     labelled: false,
     polygon: ring(14, -29, 1.1),
   },
+  {
+    // The small, cold, deep loch in a humid glen where Darrow and Cassius hid from Minerva's riders:
+    // ~20 km east of Mars along the northern crests (p.210), riders "tear down the glen" (p.213),
+    // "I'm in Minerva, not Mars" (p.214). Position inferred; not the supper loch above (p.190).
+    id: 'dark-loch',
+    name: 'The Dark Loch',
+    kind: 'lake',
+    confidence: 'inferred',
+    labelled: false,
+    polygon: ring(35.5, -24, 0.7),
+  },
 ];
 
 // ---------------------------------------------------------------------------------------------
