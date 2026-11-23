@@ -211,7 +211,7 @@ export const PLACES: PlaceContent[] = [
     summary:
       'A walled fortress that spans a great river on the southern plain, famous for its bread, orchards and painted horses.',
     description: [
-      'House Ceres holds the plain south of the highlands. Its fortress spans a great river, visible from Phobos Tower across open grass, with orchards and crops around it and painted horses in its stables. Its students are soft from bread and little meat, and Darrow calls it the bread fortress.',
+      'House Ceres holds the plain west of Mars, where the river that drains the highlands meets the Argos. Its fortress spans a great river, with orchards and crops around it and painted horses in its stables. The text and the printed map do not quite agree on its direction: from Phobos Tower Darrow points to an enemy fortress on the southern plains, while the map draws Ceres west of Mars. Its students are soft from bread and little meat, and Darrow calls it the bread fortress.',
       'Inside the high walls a courtyard leads to several buildings and a huge keep where the bread bakes. Archers and dogs patrol the battlements, bundles of tinder burn at the wall’s foot at night, and the approach from the water is watched. Ceres is no stranger to siege.',
     ],
     facts: [
@@ -983,7 +983,7 @@ export const PLACES: PlaceContent[] = [
       'A still loch in the northern highlands where Darrow’s first tribe gathers to eat, with the highland range full of other lochs.',
     description: [
       'In the northern highlands a loch gives Darrow’s tribe a place to eat out of sight of the castle. Here the dregs and midDrafts of the House share goat and sheep killed with dull knives, and Lea skins her first sheep with Darrow’s help.',
-      'The highlands hold many lochs: from Phobos the southern range looks full of lochs and goats. A different loch, in a humid glen about twenty kilometres east of the castle, is where Darrow and Cassius flee into the water from Minerva’s horsemen. We treat it as a different loch.',
+      'The highlands hold many lochs: from Phobos the southern range looks full of lochs and goats. This is the supper loch, not the one where Darrow and Cassius hide from Minerva’s horsemen, which lies far to the east (see the Dark Loch).',
     ],
     facts: [
       { label: 'Position', value: 'Northern highlands' },
@@ -1002,7 +1002,45 @@ export const PLACES: PlaceContent[] = [
     ],
     quotes: [{ text: 'We meet our tribe for supper by a loch in the northern highlands.', page: 190 }],
     pages: [182, 190, 191, 210, 213],
-    related: ['highlands', 'castle-mars', 'tower-deimos'],
+    related: ['highlands', 'castle-mars', 'dark-loch', 'tower-deimos'],
+  },
+
+  {
+    id: 'dark-loch',
+    title: 'The Dark Loch',
+    subtitle: 'Where Darrow and Cassius hid from Minerva',
+    confidence: 'inferred',
+    summary:
+      'A small, cold, deep loch in a humid glen east of the highlands, where deerling drink and Minerva’s riders circle the shore.',
+    description: [
+      'In a humid glen far east of Mars Castle lies a dark loch, small and deep, with mud along its banks and bugs flitting over the cold water. Deerling come to drink across from the place where Darrow and Cassius stop to wash and eat. It is summer, but the water is cold enough to bring on hypothermia.',
+      'Seventeen Minervan riders with stunpikes tear down the glen and circle the shore, waiting for the two boys in the water to tire. Darrow cannot swim; he learns in the loch, floating on durobags blown full of air.',
+    ],
+    facts: [
+      { label: 'Setting', value: 'Humid glen, about 20 km east of the castle' },
+      { label: 'Water', value: 'Small, cold, deep' },
+      { label: 'Territory', value: 'Minerva’s, by Mustang’s account' },
+      { label: 'Not to be confused with', value: 'The supper loch of the northern highlands' },
+    ],
+    events: [
+      {
+        season: 'summer',
+        text: 'Darrow and Cassius, walking east along the high crests, meet Mustang on a dappled horse at the edge of the glen and trade barbs with her.',
+      },
+      {
+        season: 'summer',
+        text: 'Seventeen Minervan horsemen charge down the glen. Cassius dives into the loch and Darrow follows, floating on durobags while the riders circle the shore.',
+      },
+      {
+        season: 'summer',
+        text: 'Sevro, in a wolfskin, drives the riders off in the dusk and the medBots take them. Darrow and Cassius ride the Minervan horses east to raid Minerva’s castle.',
+      },
+    ],
+    quotes: [{ text: 'I’m in Minerva, not Mars.', page: 214 }],
+    pages: [209, 210, 211, 213, 214, 215, 216, 217, 221],
+    inference:
+      'The book gives no map position. Darrow and Cassius walk “east and east” along the northern crests (p.210), Cassius guesses “maybe twenty klicks” east of the castle (p.210), and Mustang says they are in Minerva’s lands (p.214). Our map therefore puts the loch about 19 km east of Mars, in the north of the Postern Hills. The printed map shows no loch there.',
+    related: ['highland-loch', 'castle-minerva', 'castle-mars', 'postern-hills'],
   },
 
   // ---------------------------------------------------------------------------------------------
