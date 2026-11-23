@@ -13,6 +13,7 @@ import {
   BoxGeometry,
   BufferGeometry,
   CircleGeometry,
+  IcosahedronGeometry,
   Color,
   ConeGeometry,
   CylinderGeometry,
@@ -672,6 +673,18 @@ export class Kit {
   chimney(u: number, v: number, w: number, y0: number, y1: number, stone: Color, trim: Color): void {
     this.box('stone', u, v, w, w, y0, y1, 0, stone, { ao: 0.75 });
     this.box('trim', u, v, w + 0.01, w + 0.01, y1 - 0.01, y1 + 0.006, 0, trim, { ao: 1 });
+  }
+
+  /** Craggy boulder (rock outcrop, cave jambs, summit heaps). */
+  rock(b: Bucket, u: number, v: number, r: number, y: number, c: Color, sy = 0.7): void {
+    const g = new IcosahedronGeometry(r, 0);
+    g.scale(1 + (this.rng() - 0.5) * 0.4, sy, 1 + (this.rng() - 0.5) * 0.4);
+    this.place(b, g, u, y, v, this.rng() * 6.28, c, { ao: 0.7, vary: 0.12 });
+  }
+
+  /** World-space direction (wx, wz) -> castle-local direction. */
+  worldToLocal(wx: number, wz: number): P {
+    return [wx * this.ca - wz * this.sa, wx * this.sa + wz * this.ca];
   }
 
   // ---------------------------------------------------------------- ground fitting

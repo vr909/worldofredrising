@@ -61,8 +61,7 @@ function BuiltLandmark({ landmark: l }: { landmark: Landmark }) {
   const handlers = useHandlers(l.id);
   const hovered = useStore((s) => s.hoveredId === l.id);
   const selected = useStore((s) => s.selectedId === l.id);
-  // 'perf.shadows' does not exist in the store yet (T14); shadows follow the quality tier until it does.
-  const shadows = useStore((s) => s.quality !== 'low');
+  const shadows = useStore((s) => s.perf.shadows);
 
   const built = useMemo(() => buildLandmark(hf, l), [hf, l]);
   const mats = useMemo(
