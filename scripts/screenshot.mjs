@@ -10,6 +10,7 @@
  *
  * Any place id from src/world/layout.ts is a valid view; append "-winter" for the winter season,
  * or "@0.5" to pin the season blend (0 summer … 1 winter), e.g. castle-ceres@0.5 to see rivers mid-freeze.
+ * Prefix "2d:" for the flat 2D map view, e.g. 2d:overview or 2d:castle-mars (selects that place).
  * Also prints browser console errors — a non-empty error list means the change is not done.
  */
 import { spawn, execSync } from 'node:child_process';
@@ -79,7 +80,8 @@ const browser = await chromium.launch({
 const errors = [];
 try {
   for (const view of views) {
-    const [name, pinned] = view.split('@');
+    const is2d = view.startsWith('2d:');
+    const [name, pinned] = (is2d ? view.slice(3) : view).split('@');
     const winter = name.endsWith('-winter');
     const shot = winter ? name.slice(0, -'-winter'.length) : name;
     const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
@@ -87,12 +89,13 @@ try {
     page.on('pageerror', (e) => errors.push(`[${view}] ${e.message}`));
     const qs = new URLSearchParams({ view: shot, intro: '0', season: winter ? 'winter' : 'summer' });
     if (pinned !== undefined) qs.set('seasonT', pinned);
+    if (is2d) qs.set('mode', '2d');
     if (process.env.SHOT_UI !== '1') qs.set('ui', '0');
     const t0 = Date.now();
     await page.goto(`${base}?${qs}`);
     await page.waitForSelector('body[data-ready="true"]', { timeout: 120000 });
     await page.waitForTimeout(Number(process.env.SHOT_SETTLE_MS ?? 1200));
-    const file = path.join(outDir, `${view.replace('@', '_at_')}.png`);
+    const file = path.join(outDir, `${view.replace('@', '_at_').replace('2d:', '2d-')}.png`);
     await page.screenshot({ path: file });
     console.log(
       `✓ ${view.padEnd(22)} ${((Date.now() - t0) / 1000).toFixed(1)}s  ${path.relative(process.cwd(), file)}`,

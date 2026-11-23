@@ -31,7 +31,8 @@
   text-transform: uppercase;
   color: var(--gold);
 }
-.hud-season {
+.hud-season,
+.hud-view {
   position: absolute;
   bottom: var(--space-5);
   left: 50%;
@@ -43,7 +44,8 @@
   padding: 3px;
   backdrop-filter: blur(8px);
 }
-.hud-season button {
+.hud-season button,
+.hud-view button {
   border: 0;
   background: none;
   color: var(--parchment);
@@ -54,7 +56,8 @@
   border-radius: 999px;
   cursor: pointer;
 }
-.hud-season button.on {
+.hud-season button.on,
+.hud-view button.on {
   background: var(--gold);
   color: var(--ink);
 }
@@ -227,4 +230,21 @@
 }
 .hud-compass .cardinal.n {
   fill: var(--gold);
+}
+
+/* 2D/3D switch sits to the left of the season switch. */
+.hud-view {
+  left: auto;
+  right: calc(var(--space-5) + 80px);
+  transform: none;
+}
+.map2d-stub {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--parchment);
+  color: var(--ink-soft);
+  font-family: var(--font-display);
+  letter-spacing: 0.2em;
 }

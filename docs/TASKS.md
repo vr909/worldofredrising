@@ -14,15 +14,16 @@ but get refined at the start of their milestone with what we learn (expect chang
 | T03 | M1 | Water: rivers, sea, loch, ice | Sonnet | — | Done |
 | T04 | M1 | Sky, light, fog, mist, moons | Sonnet | — | Done |
 | T09 | M1 | Lore content for every place | Sonnet | — | Done |
-| T05 | M2 | Castle kit + per-House recipes, towers, bridge, fort | Sonnet | T01 | Scoped |
-| T06 | M2 | Olympus | Sonnet | T04 | Scoped |
-| T07 | M2 | Vegetation | Sonnet | T01, T02 | Scoped |
-| T08 | M2 | Sigils + banners | Sonnet | — | Scoped |
+| T05 | M2-A | Castle kit + per-House recipes, towers, bridge, fort | Sonnet | T01 | Ready |
+| T06 | M2-B | Olympus | Sonnet | T04 | Scoped |
+| T07 | M2-B | Vegetation | Sonnet | T01, T02, T14 | Scoped |
+| T08 | M2-B | Sigils + banners | Sonnet | T05, T17 | Scoped |
 | T10 | M3 | Camera: intro, hero shots, flights, keys | Sonnet | T05, T06 | Scoped |
 | T11 | M3 | UI: placards, index, minimap, gate, about, mobile | Sonnet | T08, T09 | Scoped |
 | T12 | M3 | In-world labels + hover/selection markers | Sonnet | T05, T08 | Scoped |
 | T13 | M3 | Weather + season orchestration | Sonnet | T02, T03, T07 | Scoped |
-| T14 | M4 | Performance + quality tiers + mobile | Sonnet | all | Scoped |
+| T14 | M2-A | Performance foundation (moved up) | Sonnet | — | Ready |
+| T17 | M2-A | 2D map view (new) | Sonnet | — | Ready |
 | T15 | M4 | Post-processing + colour grade | Sonnet | M3 | Scoped |
 | T16 | M4 | Accessibility + no-WebGL fallback | Sonnet | T11 | Scoped |
 | L-n | all | Lead: review, merge, art-direction pass, journal, milestone demo | Opus | — | Ongoing |
@@ -139,23 +140,119 @@ graded sky, mist in the glens, moons visible in overview, no hard transparent ed
 
 ---
 
-## M2 — The Houses (scoped; refined at M1 review)
+## M2 — The Houses (refined after M1 review)
 
-- **T05 Castle kit.** Modular procedural parts (curtain wall with crenellations, round and square towers, keep,
-  gatehouse, spires, colonnade, river-spanning hall, tiered walls, cave mouth) merged per castle (≤ 3 draw calls).
-  Recipes per landmark from canon: Mars (4 spires, 50 m square keep in NW wall, west gate, 30 m walls on cliffs),
-  Jupiter (3-tier walls bowing outward between rock faces, postern gate), Ceres (spans river, long walls,
-  orchard yard), Minerva (sprawling sandstone with an inner town), Diana (forest fortress), Apollo, Juno,
-  inferred Houses (Vulcan forge-fortress with chimneys, Neptune sea-castle on a headland, Venus, Mercury,
-  Bacchus), Pluto (cave mouth with hidden gate), Phobos/Deimos towers (Deimos "massive"), Metas bridge, Pass Fort.
-  Winter snow on roofs. Hover/selection highlight (rim glow).
+**Re-planned after the product-owner review:** the human measured **1–2 FPS** on a Windows laptop in Chrome
+(very likely software WebGL), and asked for a 2D map. So performance (T14) moves up from M4 and a 2D map view
+(T17, new) joins M2. **Wave A:** T05, T14, T17 (disjoint folders; the lead pre-wired the seams: `viewMode`,
+`perf` flags, stubs). **Wave B:** T06, T07, T08, refined after wave A.
+
+### T05 · Castle kit + per-House recipes (wave A)
+**Owns:** `src/landmarks/**` except `src/landmarks/olympus/` (T06). Replace the graybox in `Landmarks.tsx`.
+**Reads:** layout (`LANDMARKS`, `site`, `facingDeg`), `HOUSES` colours, `Heightfield.heightAt`, `sharedUniforms`,
+`store.perf.shadows`, DESIGN §2–5, canon doc §3, §4, §7.
+**Goal:** a miniature, painterly castle for every House, recognisable from canon, in one consistent style.
+**Requirements:**
+1. **Kit, not models.** A parametric procedural kit in code: curtain wall segment (crenellated), round tower,
+   square tower, keep, gatehouse with turrets, spire, colonnade, river-spanning hall/bridge-wall, tiered walls,
+   cave mouth, simple roofed buildings (inner-town filler). Parts are merged into **≤ 3 draw calls per landmark**
+   (stone, roof/house-colour, trim). Total for all landmarks ≤ 60 draw calls and ≤ 200 k triangles.
+2. **Recipes as data** (`recipes.ts`): one recipe per landmark id, in castle-local units (display km; local −z =
+   the facing/gate direction from `facingDeg`). The kit builds from recipes; recipes never contain geometry code.
+3. **Mars Castle is the reference castle; build it first and to the highest standard:**
+   hill castle, walls 30 m on 80 m cliffs (terrain provides the cliffs) (p.166); "the castle itself is huge";
+   gatehouse "swells out from the walls as a fortress with turrets" at the **west** gate (p.166); **square keep, 50 m,
+   part of the north-west wall** (p.166); **four spires** (p.204); long dormitories, a square/courtyard, a kitchen
+   (p.165–166). Scale ×4: walls ≈ 0.12, keep ≈ 0.2 display km tall.
+4. **Other canon castles** (canon doc §4, §7):
+   - Apollo: tall, white, ornate; a round plaza with six doorways to **six spiralling towers**; ~100 m parapet (p.340).
+   - Jupiter: on high rocky ground between two rock faces; **three-tiered walls bowing outward**; postern gate (p.353).
+     Dark basalt.
+   - Ceres: **spans the river**; long walls; a courtyard leading to several buildings and a **huge keep where the
+     bread bakes** (p.309); orchards inside the walls.
+   - Minerva: **sprawling sandstone fortress** with a city inside; 30 m walls; olive country (pp.217–218, 254).
+   - Diana: a fortress deep in the Greatwoods. Its soldiers are tree-climbers, so timber walkways and treetop
+     platforms are *invented*: keep them plausible.
+   - Juno: deep cellars (low, solid, thick-walled), framed by mountains.
+5. **Inferred and invented castles** get distinct but restrained character: Vulcan (forge-fortress, chimneys, ember
+   glow), Neptune (sea-castle on the headland with a sea gate), Venus (elegant, rose stone), Mercury (slender, fast,
+   winged finials), Bacchus (low, wide, terraced, vine trellises). Pluto: no castle, just a **cave mouth with a
+   hidden gate** in the hillside facing `facingDeg`.
+6. Phobos (stone tower on a rocky summit) and Deimos ("massive tower") (p.168); the **Metas bridge** (a single stone
+   bridge spanning the Metas, deck just above `riverSurfaceAt('metas', u)` at the bridge); the Pass Fort
+   (weatherworn stone fort on a low hill, p.183).
+7. **Look:** painterly like the terrain. Stone tinted by region (grey granite highlands, sandstone Minerva, basalt
+   Jupiter/Vulcan, white marble Apollo), roofs and banners in House `color`, soft baked AO via vertex colours,
+   subtle value noise. **Winter:** snow on roofs, crenellations and ledges via `uSeason` (world-normal-up test).
+8. **Interaction (contract):** click → `select(id)`, hover → `hover(id)`/`hover(null)`, `stopPropagation`. Hover
+   and selection get a gentle warm rim/emissive lift, never a hard outline. `layers.inferred` hides inferred ones.
+9. Shadows: castles `castShadow` only when `store.perf.shadows`.
+**Done when:** `npm run shot -- castle-mars castle-apollo` / `castle-jupiter castle-ceres` / `castle-minerva overview`
+/ `castle-mars-winter` (two per call) show recognisable, canon-faithful castles in one style; Mars matches every
+point of item 3; budgets met (report `renderer.info` numbers from the T14 probe or your own count).
+
+### T14 · Performance foundation (wave A; moved up from M4)
+**Owns:** `src/perf/**`, new `scripts/perf.mjs` + `npm run perf` script line (request the package.json line);
+**for this wave also** `src/terrain/terrainMaterial.ts`, `src/terrain/shaders/**`, `src/atmosphere/MistLayer.tsx`,
+`src/atmosphere/Atmosphere.tsx` (only to honour perf flags and for shader cost), `src/water/Water.tsx` (only to
+honour `ambientFps`/demand rendering).
+**Reads:** `store.perf` / `PerfFlags` / `perfForQuality` (lead-owned contract), ARCHITECTURE §7.
+**Goal:** usable everywhere. Smooth on laptops, and still navigable on machines rendering WebGL in software.
+**Requirements:**
+1. **Measure first.** `npm run perf` (formalise the lead's probe: headless Chromium, relative frame cost per
+   tier, plus `renderer.info` calls/triangles). Record **baseline numbers before any change** in your report.
+2. **Detect the renderer** (`WEBGL_debug_renderer_info`). Software renderers (SwiftShader, llvmpipe, "Microsoft Basic
+   Render", "Software") → `perf.software = true` and the cheapest settings. `PerfNotice` then explains it in one
+   line ("Your browser is drawing 3D without the graphics card. Turn on hardware acceleration in Chrome settings,
+   or use the 2D map") with a button calling `setViewMode('2d')`. Dismissible; remembered per session.
+3. **Adaptive at runtime** (drei `PerformanceMonitor` or equivalent). On decline: lower `dpr` (down to 0.75), then
+   `shadows`, `mist`, `detail`, `ambientFps`. On incline: restore up to the startup tier's values. Never regenerate
+   the heightfield at runtime. Hysteresis, so settings don't flap.
+4. **Cheaper terrain shading.** Most per-pixel cost is static noise (macro, macro2, blotch, stroke, fine, crevices,
+   strata warp, winter patches). Bake the static fields once (DataTexture over the terrain extent, or vertex
+   attributes) and sample them. `detail` 2 = current look (target: **visually identical**), 1 = fewer layers,
+   0 = baked colour only. Before/after screenshots of `overview` and `castle-mars` must match.
+5. **Render on demand.** Set `perf.frameloop = 'demand'` and `invalidate()` on camera movement, camera transitions,
+   hover/selection changes and season transitions. Run ambient animation (water flow, mist drift) on a capped tick
+   (`ambientFps`; 0 = static). Idle with nothing moving should not burn the GPU.
+6. `?stats=1` also shows draw calls and triangles.
+**Done when:** the probe shows **medium ≥ 2× cheaper** and **software-rendering defaults ≥ 6× cheaper** than the
+recorded baseline medium; look parity at detail 2; the notice appears when software rendering is forced
+(`--disable-gpu`-style headless already *is* software, so verify the detection path there); `npm run check` green.
+
+### T17 · 2D map view (wave A; new)
+**Owns:** `src/map2d/**` (replace the stub). **Reads:** layout, `HOUSES`, `PLACES`, store (`select`, `hover`,
+`selectedId`, `season`, `layers`, `viewMode`), DESIGN §3, §7–8, §11.
+**Goal:** a beautiful flat map of the valley, drawn from the same layout data, that works with **no WebGL**.
+It is the lag escape hatch, the accessibility fallback, and (in M3) the minimap.
+**Requirements:**
+1. **SVG drawn from data** (`REGIONS`, `RIVERS`, `LANDMARKS`, `BOUNDS`): parchment ground; canyon walls as
+   hatched rust bands on the east and west edges; mountains as repeated peak glyphs scattered (seeded) inside the
+   mountain polygon; forests as tree glyphs; hills as low contour strokes; rivers as tapered strokes (width from
+   `river.width`); the sea with wave lines; lochs; marsh tufts. Region and river labels in Cinzel caps, tracked,
+   like an engraved map. **Inspired by the book's printed map but an original drawing**; never trace it.
+2. **Markers:** each landmark at its position: an inverted triangle in House `colorDeep` with a placeholder glyph
+   (T08 delivers sigils in wave B; design the marker so the sigil drops in), dashed outline for inferred ones
+   (hidden when `layers.inferred` is off), a ring for Olympus, small squares for towers/fort/bridge.
+3. **Interaction:** pan (drag), zoom (wheel, pinch, +/− buttons), click a marker → `select(id)` (the existing
+   placard opens), hover → `hover(id)` with a small tooltip (title + summary from `PLACES`). The selected marker is
+   emphasised. Keyboard: markers are focusable buttons (Tab order north → south), Enter selects.
+4. **Extras:** a compass rose (north up), a 10 km scale bar, a small inset showing where the valley sits on Mars.
+   Winter (`season`) may tint the map paler and frozen-blue; optional.
+5. **Variant prop** `variant: 'full' | 'mini'`, so M3 can reuse it as the minimap (mini: no labels, no controls).
+6. Sets the ready signal on mount (already in the stub). Fast: < 50 ms render, ≤ ~3,000 SVG nodes; glyph placement
+   precomputed with `useMemo`.
+**Done when:** `SHOT_UI=1 npm run shot -- 2d:overview 2d:castle-mars` look like a finished antique-style map with
+correct geography (compare with `docs/images/layout-preview.svg`); unit tests for glyph scattering
+(deterministic, inside polygons) pass; it works with the 3D view never mounted.
+
+### Wave B (refined after wave A)
 - **T06 Olympus.** Floating inverted mountain with craggy underside, snowy upper slopes, bone-pale marble citadel
-  "like a marble sword" (slender spire), high balconies and terraces, warm window glow, tiny medBots orbiting. No doors, no dock.
-- **T07 Vegetation.** Instanced conifers (North Woods, highland firs), oak/broadleaf (Greatwoods, glens), olive
-  groves (Minerva), orchards (Ceres), vineyards (Bacchus, inferred), reeds (marsh). Scatter by region/splat/slope,
-  clear of water and sites; wind sway; winter snow caps and bare broadleaf; tiered densities.
-- **T08 Sigils & banners.** 13 original SVG sigils per DESIGN §11 + `src/sigils/index.ts` export; waving cloth
-  banners above castles using a sigil texture; reusable `<Sigil id/>` React component for the UI.
+  "like a marble sword", balconies and terraces, warm window glow, tiny medBots. No doors, no dock. Retune T04's
+  cloud collar so it hugs the waist and reads as floating.
+- **T07 Vegetation.** Instanced conifers, broadleaf, olive groves (Minerva), orchards (Ceres), vineyards (Bacchus,
+  inferred), reeds (marsh); winter variants; densities from `perf`.
+- **T08 Sigils & banners.** 13 original SVG sigils + `<Sigil id/>`; waving banners over castles; swap them into T17's markers.
 
 ## M3 — The Experience (scoped)
 
@@ -171,7 +268,7 @@ graded sky, mist in the glens, moons visible in overview, no hard transparent ed
 
 ## M4 — Polish & Ship (scoped)
 
-- **T14 Performance.** Auto quality tier (drei PerformanceMonitor), budgets verified, phone emulation screenshots, bundle analysis.
+- **T14b Performance verification.** Re-run the perf probe with everything in; phone emulation; bundle analysis. (T14 itself moved to M2.)
 - **T15 Post-processing.** Tilt-shift focused on the camera target (diorama feel), gentle bloom (Olympus
   windows, water glints), vignette, colour grade, SMAA; per-tier settings.
 - **T16 Accessibility.** Keyboard pass, focus order, ARIA, contrast, no-WebGL fallback (index + minimap + placards).

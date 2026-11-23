@@ -6,6 +6,7 @@ import { PLACES } from '../content/places';
 import { useStore } from '../state/store';
 import { HOUSES } from '../world/houses';
 import { LANDMARKS, landmarkById } from '../world/layout';
+import { PerfNotice } from '../perf/PerfNotice';
 import { Compass } from './Compass';
 import './hud.css';
 
@@ -22,8 +23,30 @@ export function Hud() {
       <PlaceIndex />
       <PlacePanel />
       <SeasonToggle />
+      <ViewToggle />
       <Compass />
+      <PerfNotice />
       {!entered && <EntryGate />}
+    </div>
+  );
+}
+
+function ViewToggle() {
+  const viewMode = useStore((s) => s.viewMode);
+  const setViewMode = useStore((s) => s.setViewMode);
+  return (
+    <div className="hud-view" role="radiogroup" aria-label="Map view">
+      {(['3d', '2d'] as const).map((m) => (
+        <button
+          key={m}
+          role="radio"
+          aria-checked={viewMode === m}
+          className={viewMode === m ? 'on' : ''}
+          onClick={() => setViewMode(m)}
+        >
+          {m === '3d' ? '3D' : '2D'}
+        </button>
+      ))}
     </div>
   );
 }

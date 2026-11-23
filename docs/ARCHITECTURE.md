@@ -43,6 +43,8 @@ Ownership = who may **write** a path. Everyone may read everything. "Lead" = the
 | `src/labels/` | In-world labels, hover/selection markers | T12 |
 | `src/atmosphere/weather/` | Snowfall, season orchestration | T13 |
 | `src/post/` | Post-processing | T15 |
+| `src/perf/`, `scripts/perf.mjs` | Device detection, adaptive quality, demand rendering | T14 (M2-A also: terrain shaders, MistLayer/Atmosphere, Water for perf flags) |
+| `src/map2d/` | Flat 2D map view (and M3 minimap) | T17 |
 | `scripts/`, `.github/`, `docs/` (except `docs/learning/`) | Tooling, CI, specs | Lead |
 
 Two tickets never own the same file. If a ticket needs a change in someone else's file, it says so in its
@@ -84,7 +86,7 @@ src/content/places.ts (PLACES) ──► UI placards, hover cards, index, labels
 2. **Heightfield** interface (`src/terrain/heightfield.ts`): `heightAt`, `normalAt`, `riverSurfaceAt`,
    `regionAt`, `heights`, `surface.{splatA,splatB,ao,water}`, grid fields. Internals are free to change.
 3. **Store** (`src/state/store.ts`): `selectedId`, `hoveredId`, `season`, `layers`, `quality`,
-   `cameraRequest`, `entered`, `ready`, and their actions.
+   `cameraRequest`, `entered`, `ready`, `viewMode`, `perf` (PerfFlags: T14 writes, systems read), and their actions.
 4. **Shared uniforms** (`src/render/uniforms.ts`): `uTime`, `uSeason` (animated 0..1, read this and not the
    store, inside render code), `uSunDirection`, `uSunColor`, `uFogColor`, `uFogDensity`.
 5. **Interaction:** any clickable 3D object calls `select(id)` on click and `hover(id)`/`hover(null)` on

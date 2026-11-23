@@ -7,6 +7,7 @@
  *   ?ui=0             hide the HUD (clean screenshots)
  *   ?quality=low|medium|high
  *   ?stats=1          show an FPS / frame-time overlay (for performance reports)
+ *   ?mode=2d          start in the flat 2D map view instead of the 3D diorama
  * The hash (#castle-mars) also selects a place, for shareable links.
  */
 export type Quality = 'low' | 'medium' | 'high';
@@ -20,6 +21,7 @@ export interface StartParams {
   ui: boolean;
   quality: Quality | null;
   stats: boolean;
+  mode: '2d' | '3d';
   selected: string | null;
 }
 
@@ -34,6 +36,7 @@ export function readStartParams(loc: Pick<Location, 'search' | 'hash'> = window.
     ui: q.get('ui') !== '0',
     quality: quality === 'low' || quality === 'medium' || quality === 'high' ? quality : null,
     stats: q.get('stats') === '1',
+    mode: q.get('mode') === '2d' ? '2d' : '3d',
     selected: loc.hash.length > 1 ? decodeURIComponent(loc.hash.slice(1)) : null,
   };
 }
