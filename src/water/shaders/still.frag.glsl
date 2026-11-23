@@ -38,7 +38,7 @@ void main() {
   float alpha = 1.0;
   if (uAlpha < 1.0) {
     if (depth < 0.001) discard;
-    alpha = uAlpha * smoothstep(0.0, 0.02, depth) * smoothstep(0.0, 0.35, edgeIn);
+    alpha = uAlpha * smoothstep(0.0, 0.05, depth) * smoothstep(0.0, 0.6, edgeIn);
   }
 
   // gentle ripples
