@@ -16,6 +16,7 @@ import {
   Vector3,
 } from 'three';
 import { sharedUniforms } from '../render/uniforms';
+import { useStore } from '../state/store';
 import { useHeightfield } from '../terrain/HeightfieldContext';
 import { placeMist } from './mistPlacement';
 import mistFrag from './shaders/mist.frag.glsl?raw';
@@ -29,6 +30,7 @@ const CLOUD_SHADE = { summer: new Color('#B9BCCB'), winter: new Color('#BFC6D0')
 export function MistLayer() {
   const hf = useHeightfield();
   const data = useMemo(() => placeMist(hf), [hf]);
+  const mistOn = useStore((s) => s.perf.mist); // T14: mist banks and the cloud collar can be switched off
 
   const { mesh, sortedPos, sortedSize, sortedDir, last } = useMemo(() => {
     const geo = new PlaneGeometry(1, 1);
@@ -81,7 +83,12 @@ export function MistLayer() {
   const order = useMemo(() => Uint16Array.from({ length: data.count }, (_, i) => i), [data]);
   const dist = useMemo(() => new Float32Array(data.count), [data]);
 
+  useEffect(() => {
+    mesh.visible = mistOn;
+  }, [mesh, mistOn]);
+
   useFrame(({ camera }) => {
+    if (!mistOn) return;
     const u = (mesh.material as ShaderMaterial).uniforms;
     const s = sharedUniforms.uSeason.value;
     (u.uMistColor!.value as Color).copy(sharedUniforms.uFogColor.value).lerp(WHITE, 0.3);

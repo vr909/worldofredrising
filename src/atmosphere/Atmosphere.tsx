@@ -5,7 +5,7 @@
  *
  * Draw calls: sky dome 1 + mist/cloud 1 = 2 (plus the sun shadow pass).
  */
-import { useFrame, useThree } from '@react-three/fiber';
+import { invalidate, useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import {
   Color,
@@ -38,6 +38,7 @@ export function SharedUniformsDriver() {
   const first = useRef(true);
   useFrame((_, dt) => {
     sharedUniforms.uTime.value += dt;
+    dt = Math.min(dt, 0.5); // demand rendering: a long idle gap must not snap the season transition
     const pinned = START_PARAMS.seasonT;
     const target = pinned ?? (season === 'winter' ? 1 : 0);
     const u = sharedUniforms.uSeason;
@@ -47,6 +48,7 @@ export function SharedUniformsDriver() {
     } else {
       const step = dt / SEASON_SECONDS;
       u.value = u.value < target ? Math.min(target, u.value + step) : Math.max(target, u.value - step);
+      if (u.value !== target) invalidate(); // T14: keep rendering while the season animates (demand frame loop)
     }
     const s = u.value;
     sharedUniforms.uFogColor.value.copy(FOG_COLOR.summer).lerp(FOG_COLOR.winter, s);
@@ -68,6 +70,7 @@ export function Atmosphere() {
   const scene = useThree((s) => s.scene);
   const gl = useThree((s) => s.gl);
   const quality = useStore((s) => s.quality);
+  const shadows = useStore((s) => s.perf.shadows); // T14: realtime sun shadows can be switched off at runtime
   const sun = useRef<DirectionalLight>(null);
   const hemi = useRef<HemisphereLight>(null);
   const target = useMemo(() => new Object3D(), []);
@@ -90,13 +93,13 @@ export function Atmosphere() {
     if (!l) return;
     l.target = target;
     const size = SHADOW_MAP[quality];
-    l.castShadow = size > 0;
+    l.castShadow = size > 0 && shadows;
     if (size > 0) {
       l.shadow.mapSize.set(size, size);
       l.shadow.map?.dispose();
       l.shadow.map = null;
     }
-  }, [quality, target]);
+  }, [quality, shadows, target]);
 
   useFrame(({ camera }) => {
     const s = sharedUniforms.uSeason.value;

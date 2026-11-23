@@ -6,7 +6,9 @@
  */
 import { Color, MeshStandardMaterial, ShaderChunk, type WebGLProgramParametersWithUniforms } from 'three';
 import { CANYON_STRATA, SUMMER, WINTER, type SeasonPalette } from '../render/palette';
+import { bakeBox, bakedTextures } from '../perf/bake';
 import { sharedUniforms } from '../render/uniforms';
+import { useStore } from '../state/store';
 import noiseGlsl from './shaders/noise.glsl?raw';
 import slabGlsl from './shaders/slab.glsl?raw';
 import strataGlsl from './shaders/strata.glsl?raw';
@@ -48,7 +50,20 @@ function baseMaterial(): MeshStandardMaterial {
 export function createTerrainMaterial(): MeshStandardMaterial {
   const mat = baseMaterial();
   mat.name = 'terrain-painterly';
+  // T14: shader detail (perf.detail) is a compile-time define; a change recompiles this one material.
+  let detail = useStore.getState().perf.detail;
+  const unsubscribe = useStore.subscribe((s) => {
+    if (s.perf.detail === detail) return;
+    detail = s.perf.detail;
+    mat.needsUpdate = true;
+  });
+  mat.addEventListener('dispose', unsubscribe);
   mat.onBeforeCompile = (shader: WebGLProgramParametersWithUniforms) => {
+    shader.uniforms.uBakeA = { value: bakedTextures[0] };
+    shader.uniforms.uBakeB = { value: bakedTextures[1] };
+    shader.uniforms.uBakeC = { value: bakedTextures[2] };
+    shader.uniforms.uBakeBox = { value: bakeBox };
+    const defines = `#define TERRAIN_DETAIL ${detail}\n#define STRATA_DETAIL ${detail >= 2 ? 1 : 0}\n`;
     shader.uniforms.uSeason = sharedUniforms.uSeason;
     shader.uniforms.uSunDirection = sharedUniforms.uSunDirection;
     shader.uniforms.uPalS = { value: paletteList(SUMMER) };
@@ -87,7 +102,7 @@ vWet = wet;`,
 
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <lights_physical_pars_fragment>', WRAPPED_LIGHTS)
-      .replace('void main() {', `${noiseGlsl}\n${strataGlsl}\n${terrainGlsl}\nvoid main() {`)
+      .replace('void main() {', `${defines}${noiseGlsl}\n${strataGlsl}\n${terrainGlsl}\nvoid main() {`)
       .replace(
         '#include <color_fragment>',
         `#include <color_fragment>
@@ -101,7 +116,7 @@ reflectedLight.directSpecular = vec3(0.0);
 reflectedLight.indirectSpecular = vec3(0.0);`,
       );
   };
-  mat.customProgramCacheKey = () => 'terrain-painterly-v2';
+  mat.customProgramCacheKey = () => `terrain-painterly-v3-d${detail}`;
   return mat;
 }
 
