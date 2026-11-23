@@ -31,13 +31,23 @@ export function buildTerrainGeometry(hf: Heightfield): BufferGeometry {
       const b = a + 1;
       const d = a + cols;
       const e = d + 1;
-      // Counter-clockwise seen from above (+y) so normals point up.
-      idx[k++] = a;
-      idx[k++] = d;
-      idx[k++] = b;
-      idx[k++] = b;
-      idx[k++] = d;
-      idx[k++] = e;
+      // Counter-clockwise seen from above (+y). Diagonals alternate (checkerboard) so steep faces
+      // do not show a one-directional saw-tooth.
+      if ((r + c) % 2 === 0) {
+        idx[k++] = a;
+        idx[k++] = d;
+        idx[k++] = b;
+        idx[k++] = b;
+        idx[k++] = d;
+        idx[k++] = e;
+      } else {
+        idx[k++] = a;
+        idx[k++] = d;
+        idx[k++] = e;
+        idx[k++] = a;
+        idx[k++] = e;
+        idx[k++] = b;
+      }
     }
   }
   const g = new BufferGeometry();

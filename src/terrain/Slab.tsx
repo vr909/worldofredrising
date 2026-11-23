@@ -9,7 +9,7 @@ import { useHeightfield } from './HeightfieldContext';
 import { buildSlabGeometry } from './terrainGeometry';
 import { createSlabMaterial } from './terrainMaterial';
 
-const SHADOW_MARGIN = 9; // km of soft falloff beyond the slab edge
+const SHADOW_MARGIN = 6; // km of soft falloff beyond the slab edge
 
 /** Soft rounded-box falloff generated in code: alpha 0.55 under the block fading to 0 over the margin. */
 function makeContactShadowTexture(): CanvasTexture {
@@ -57,16 +57,22 @@ export function Slab() {
   useEffect(() => () => shadowTex.dispose(), [shadowTex]);
 
   const y = -BOUNDS.slabDepth;
+  const w = BOUNDS.maxX - BOUNDS.minX;
+  const d = BOUNDS.maxZ - BOUNDS.minZ;
   const shadowW = BOUNDS.maxX - BOUNDS.minX + SHADOW_MARGIN * 2;
   const shadowD = BOUNDS.maxZ - BOUNDS.minZ + SHADOW_MARGIN * 2;
 
   return (
     <group name="slab">
       <mesh geometry={geometry} material={material} receiveShadow name="slab-skirts" />
-      {/* Dark matte table */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, y - 0.004, 0]} name="table">
-        <planeGeometry args={[900, 900]} />
+      {/* Plinth: stepped, bevelled dark base reaching ~6 km beyond the slab; nothing beyond but sky. */}
+      <mesh position={[0, y - 0.004 - 0.125, 0]} name="plinth-top">
+        <boxGeometry args={[w + 12, 0.25, d + 12]} />
         <meshStandardMaterial color="#1b1815" roughness={1} metalness={0} />
+      </mesh>
+      <mesh position={[0, y - 0.004 - 0.375, 0]} name="plinth-base">
+        <boxGeometry args={[w + 12.8, 0.25, d + 12.8]} />
+        <meshStandardMaterial color="#12100e" roughness={1} metalness={0} />
       </mesh>
       {/* Soft contact shadow */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, y, 0]} renderOrder={1} name="table-contact-shadow">

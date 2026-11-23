@@ -44,6 +44,12 @@ vec3 paintTerrain() {
   B /= sum;
 
   // --- per-surface colours ------------------------------------------------------------------
+  // Highlands (splatB.a): moss and grass, rock only on real crags (p.166 "mossy hills ... U-shaped grassy glens").
+  float rockKeep = 1.0 - B.w * 0.75 * smoothstep(0.70, 0.80, ny);
+  float lost = A.z * (1.0 - rockKeep);
+  A.z -= lost;
+  B.w += lost;
+
   vec3 grass = mix(pal(0), pal(1), smoothstep(0.35, 0.7, macro2 * 0.65 + blotch * 0.35));
   grass *= 0.94 + 0.12 * fine;
 
@@ -55,12 +61,13 @@ vec3 paintTerrain() {
   float hi = smoothstep(2.0, 2.8, h);
   vec3 rock = mix(pal(4), pal(5), clamp(hi + (macro2 - 0.5) * 0.6, 0.0, 1.0));
   rock *= 0.88 + 0.24 * tFbm(p * 1.7 + 2.0);
+  rock = mix(rock, vec3(dot(rock, vec3(0.3, 0.55, 0.15))) * vec3(0.97, 0.99, 1.03), 0.5); // cooler grey-brown
 
   vec3 moss = mix(pal(3), pal(4), smoothstep(0.58, 0.8, tFbm(p * 2.2)) * 0.45);
   vec3 sand = pal(6) * (0.95 + 0.1 * fine);
   vec3 marsh = mix(pal(7), pal(7) * vec3(0.7, 0.8, 0.65), smoothstep(0.4, 0.75, blotch));
   vec3 sandstone = mix(pal(8), pal(8) * vec3(1.1, 0.95, 0.82), smoothstep(0.3, 0.7, macro2));
-  vec3 wall = strataColor(h, p);
+  vec3 wall = strataColor(h, p) * vec3(0.9, 0.66, 0.56); // push toward Martian red-ochre
 
   vec3 col = grass * A.x + forest * A.y + rock * A.z + sand * A.w + marsh * B.x + sandstone * B.y + wall * B.z + moss * B.w;
 
@@ -72,7 +79,7 @@ vec3 paintTerrain() {
   col += wallW * vec3(0.10, 0.045, 0.0) * lit * smoothstep(0.45, 0.8, tNoise(p * 1.9 + h));
 
   // --- slope rock, high rock ------------------------------------------------------------------
-  float rockAmt = 1.0 - smoothstep(0.80, 0.90, ny + (macro2 - 0.5) * 0.08 + (fine - 0.5) * 0.04);
+  float rockAmt = 1.0 - smoothstep(mix(0.80, 0.70, B.w), mix(0.90, 0.77, B.w), ny + (macro2 - 0.5) * 0.08 + (fine - 0.5) * 0.04);
   rockAmt *= (1.0 - wallW);
   col = mix(col, rock, rockAmt);
   col = mix(col, pal(5) * (0.9 + 0.2 * fine), smoothstep(2.4, 3.1, h) * 0.5 * (1.0 - wallW));
@@ -92,7 +99,7 @@ vec3 paintTerrain() {
   // --- snow -------------------------------------------------------------------------------------
   // Snowline sweeps DOWN from the peaks as the season rises (2.8 km in summer -> below sea level).
   float s = smoothstep(0.0, 1.0, uSeason);
-  float thr = mix(2.8, -0.6, s);
+  float thr = mix(2.8 + wallW * 2.8, -0.6, s); // summer: walls only snow-capped above ~5.5 km
   float nz = (tFbm(p * 0.9 + 11.0) - 0.5) * 0.9 + (tNoise(p * 4.0) - 0.5) * 0.25;
   float above = smoothstep(0.0, 0.3, h + nz - thr);
   float lim = mix(0.5, 0.77, uSeason) + 0.18 * wallW; // summer: gentle-ish high slopes; winter: slope < ~40 deg
@@ -102,7 +109,17 @@ vec3 paintTerrain() {
   snow *= 1.0 - 0.65 * wetness;
   snow = smoothstep(0.12, 0.88, snow + (fine - 0.5) * 0.6 * snow * (1.0 - snow));
   snow *= 1.0 - 0.3 * A.y * smoothstep(0.35, 0.75, blotch); // woodland keeps a few dark gaps
-  vec3 snowCol = pal(9) * (0.94 + 0.1 * macro2 + 0.04 * tNoise(p * 2.5));
+  // Patchy low-elevation coverage: ~10-25% dull winter ground, more under trees and near water.
+  float bareN = tFbm(p * 1.3 + 30.0) * 0.7 + tNoise(p * 4.5) * 0.3;
+  float bareT = 0.6 - 0.07 * A.y - 0.1 * wetness - 0.06 * B.x - 0.05 * blotch;
+  float bare = smoothstep(bareT, bareT + 0.05, bareN) * (1.0 - smoothstep(1.0, 1.6, h));
+  snow *= 1.0 - bare * 0.92;
+  col *= 1.0 - 0.15 * bare * uSeason;
+  // Cool blue-grey snow in shade / AO, warm white in sun, faint wind-drift streaks.
+  float sunny = clamp(0.5 * lit + 0.6 * vAo - 0.1, 0.0, 1.0);
+  vec3 snowCol = pal(9) * mix(vec3(0.8, 0.88, 1.0), vec3(1.0, 0.985, 0.94), smoothstep(0.35, 0.85, sunny));
+  snowCol *= 0.94 + 0.1 * macro2;
+  snowCol *= 1.0 - 0.05 * smoothstep(0.45, 0.8, tNoise(vec2(p.x * 0.4 + p.y * 0.12, p.y * 5.5)));
   col = mix(col, snowCol, snow);
 
   return col;

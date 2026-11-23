@@ -94,18 +94,14 @@ vWet = wet;`,
 diffuseColor.rgb = paintTerrain() * mix(0.5, 1.0, vAo);`,
       )
       .replace(
-        '#include <emissivemap_fragment>',
-        `#include <emissivemap_fragment>
-{
-  // Gentle rim brightening on ridges facing the sun.
-  vec3 rn = normalize(vWNrm);
-  vec3 rv = normalize(cameraPosition - vWPos);
-  float rim = pow(1.0 - clamp(dot(rn, rv), 0.0, 1.0), 3.0) * clamp(dot(rn, uSunDirection) + 0.2, 0.0, 1.0);
-  totalEmissiveRadiance += diffuseColor.rgb * rim * 0.12;
-}`,
+        '#include <lights_fragment_end>',
+        `#include <lights_fragment_end>
+// Matte painted ground: no specular (it produced bright outlines on grazing crests).
+reflectedLight.directSpecular = vec3(0.0);
+reflectedLight.indirectSpecular = vec3(0.0);`,
       );
   };
-  mat.customProgramCacheKey = () => 'terrain-painterly-v1';
+  mat.customProgramCacheKey = () => 'terrain-painterly-v2';
   return mat;
 }
 
@@ -141,7 +137,14 @@ vTop = aTop;`,
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <lights_physical_pars_fragment>', WRAPPED_LIGHTS)
       .replace('void main() {', `${noiseGlsl}\n${strataGlsl}\n${slabGlsl}\nvoid main() {`)
-      .replace('#include <color_fragment>', `#include <color_fragment>\ndiffuseColor.rgb = paintSlab();`);
+      .replace('#include <color_fragment>', `#include <color_fragment>\ndiffuseColor.rgb = paintSlab();`)
+      .replace(
+        '#include <lights_fragment_end>',
+        `#include <lights_fragment_end>
+// Matte painted ground: no specular (it produced bright outlines on grazing crests).
+reflectedLight.directSpecular = vec3(0.0);
+reflectedLight.indirectSpecular = vec3(0.0);`,
+      );
   };
   mat.customProgramCacheKey = () => 'slab-strata-v1';
   return mat;
