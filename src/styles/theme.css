@@ -1,0 +1,73 @@
+/*
+ * UI design tokens — mirrors docs/DESIGN.md §3. Components use these variables, never raw values.
+ * Metaphor: museum placards beside a diorama. Parchment cards, ink text, gold hairlines.
+ */
+@import '@fontsource/cinzel/500.css';
+@import '@fontsource/cinzel/700.css';
+@import '@fontsource/eb-garamond/400.css';
+@import '@fontsource/eb-garamond/400-italic.css';
+@import '@fontsource/eb-garamond/600.css';
+
+:root {
+  --ink: #1b1a17;
+  --ink-soft: #4a443a;
+  --parchment: #f1e9d6;
+  --parchment-2: #e4d8be;
+  --gold: #c8a24a;
+  --gold-deep: #8a6a1e;
+  --blood: #9b2226;
+  --mist: #9fb1bc;
+  --glass: rgba(27, 26, 23, 0.72);
+  --glass-line: rgba(200, 162, 74, 0.45);
+  --badge-canon: #2f6b4f;
+  --badge-inferred: #8a6a1e;
+  --badge-invented: #6b2f5b;
+
+  --font-display: 'Cinzel', 'Trajan Pro', Georgia, serif;
+  --font-body: 'EB Garamond', Garamond, Georgia, serif;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --radius: 6px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.18);
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur: 280ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur: 0ms;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #1b1a17;
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}

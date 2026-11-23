@@ -1,0 +1,9 @@
+node_modules
+dist
+screenshots
+coverage
+*.log
+.DS_Store
+# Never commit the source book or scans of its artwork (copyright).
+*.pdf
+reference/

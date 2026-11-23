@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1264" height="832" viewBox="0 0 1264 832" font-family="Georgia, serif">
+<rect width="1264" height="832" fill="#e9e1cc"/>
+<rect x="20" y="20" width="72" height="792" fill="#7d6a58"/>
+<rect x="1172" y="20" width="72" height="792" fill="#7d6a58"/>
+<rect x="92" y="20" width="1080" height="792" fill="#d8cfa6"/>
+<polygon points="92.0,20.0 320.0,20.0 332.0,104.0 308.0,200.0 344.0,296.0 320.0,392.0 356.0,488.0 332.0,584.0 392.0,656.0 416.0,680.0 416.0,812.0 92.0,812.0" fill="#b9b2a6" stroke="#00000033" stroke-width="1"/>
+<polygon points="320.0,20.0 656.0,20.0 656.0,92.0 584.0,116.0 512.0,122.0 416.0,116.0 332.0,104.0" fill="#5f7f55" stroke="#00000033" stroke-width="1"/>
+<polygon points="656.0,20.0 968.0,20.0 980.0,152.0 956.0,272.0 896.0,308.0 800.0,296.0 704.0,284.0 668.0,236.0 644.0,128.0 656.0,92.0" fill="#9fae84" stroke="#00000033" stroke-width="1"/>
+<polygon points="968.0,20.0 1172.0,20.0 1172.0,320.0 1064.0,308.0 980.0,272.0 956.0,272.0 980.0,152.0" fill="#c9b98a" stroke="#00000033" stroke-width="1"/>
+<polygon points="668.0,392.0 704.0,284.0 800.0,296.0 896.0,308.0 956.0,272.0 980.0,272.0 1064.0,308.0 1172.0,320.0 1172.0,620.0 1088.0,656.0 968.0,644.0 848.0,656.0 752.0,638.0 704.0,584.0 668.0,512.0" fill="#5f7f55" stroke="#00000033" stroke-width="1"/>
+<polygon points="392.0,560.0 560.0,554.0 632.0,584.0 620.0,636.8 536.0,636.8 479.0,629.6 446.0,644.0 392.0,626.0" fill="#8fa08a" stroke="#00000033" stroke-width="1"/>
+<polygon points="416.0,812.0 416.0,680.0 446.0,646.4 479.0,632.0 536.0,639.2 632.0,638.0 692.0,642.8 755.0,648.8 803.0,663.2 845.0,689.0 850.4,734.0 802.4,747.2 797.6,768.8 842.0,783.2 854.0,812.0" fill="#7fa6bf" stroke="#00000033" stroke-width="1"/>
+<polygon points="813.2,68.0 810.7,73.8 804.1,77.4 795.9,77.4 789.3,73.8 786.8,68.0 789.3,62.2 795.9,58.6 804.1,58.6 810.7,62.2" fill="#7fa6bf" stroke="#00000033" stroke-width="1"/>
+<polyline points="348.8,20.0 389.0,104.0 426.2,152.0 468.8,194.6 498.8,248.6 479.6,280.4 474.8,333.8 487.4,387.2 514.4,456.8 509.0,491.0 497.0,551.0 485.0,611.0 479.0,639.2" fill="none" stroke="#3f6f8f" stroke-width="5.76" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="528.2,20.0 533.6,104.0 520.4,173.6 501.2,237.8 498.8,248.6" fill="none" stroke="#3f6f8f" stroke-width="2.4000000000000004" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="771.2,186.8 738.8,200.0 701.6,210.8 632.0,216.2 586.4,224.0 527.6,232.4 504.8,255.2 488.0,266.5" fill="none" stroke="#3f6f8f" stroke-width="3.3599999999999994" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="798.8,78.8 780.8,99.2 760.4,130.4 765.8,168.2 771.2,186.8" fill="none" stroke="#3f6f8f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="932.0,158.0 884.0,176.0 856.4,182.6 808.4,183.8 771.2,186.8" fill="none" stroke="#3f6f8f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="302.0,242.0 368.0,276.8 431.6,291.2 476.6,314.0" fill="none" stroke="#3f6f8f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"/>
+<text x="200" y="272" text-anchor="middle" font-size="15" letter-spacing="3" fill="#2b2620">THE MOUNTAINS</text>
+<text x="488" y="62" text-anchor="middle" font-size="15" letter-spacing="3" fill="#2b2620">NORTH WOODS</text>
+<text x="812" y="92" text-anchor="middle" font-size="15" letter-spacing="3" fill="#2b2620">THE HIGHLANDS</text>
+<text x="1088" y="128" text-anchor="middle" font-size="15" letter-spacing="3" fill="#2b2620">POSTERN HILLS</text>
+<text x="920" y="452" text-anchor="middle" font-size="15" letter-spacing="3" fill="#2b2620">THE GREATWOODS</text>
+<text x="632" y="728" text-anchor="middle" font-size="15" letter-spacing="3" fill="#2b2620">SOUTH SEA</text>
+<polygon points="823.4000000000001,153.20000000000002 841.4000000000001,153.20000000000002 832.4000000000001,169.20000000000002" fill="#A8322D" stroke="#111" stroke-width="1.5"/>
+<text x="832.4000000000001" y="181.20000000000002" text-anchor="middle" font-size="10" fill="#1b1a17">Mars Castle</text>
+<polygon points="1043,236 1061,236 1052,252" fill="#7A8A3E" stroke="#111" stroke-width="1.5"/>
+<text x="1052" y="264" text-anchor="middle" font-size="10" fill="#1b1a17">Minerva Castle</text>
+<polygon points="1001,374 1019,374 1010,390" fill="#2F6B4F" stroke="#111" stroke-width="1.5"/>
+<text x="1010" y="402" text-anchor="middle" font-size="10" fill="#1b1a17">Diana Castle</text>
+<polygon points="1082,596 1100,596 1091,612" fill="#D9A21B" stroke="#111" stroke-width="1.5"/>
+<text x="1091" y="624" text-anchor="middle" font-size="10" fill="#1b1a17">Apollo Castle</text>
+<polygon points="563,214.04000000000002 581,214.04000000000002 572,230.04000000000002" fill="#C98B3B" stroke="#111" stroke-width="1.5"/>
+<text x="572" y="242.04000000000002" text-anchor="middle" font-size="10" fill="#1b1a17">Ceres Castle</text>
+<polygon points="218,101 236,101 227,117" fill="#3D4F8C" stroke="#111" stroke-width="1.5"/>
+<text x="227" y="129" text-anchor="middle" font-size="10" fill="#1b1a17">Jupiter Castle</text>
+<polygon points="422.59999999999997,272 440.59999999999997,272 431.59999999999997,288" fill="#1F8A8A" stroke="#111" stroke-width="1.5"/>
+<text x="431.59999999999997" y="300" text-anchor="middle" font-size="10" fill="#1b1a17">Juno Castle</text>
+<polygon points="230,320 248,320 239,336" fill="#D2582A" stroke="#111" stroke-width="1.5" stroke-dasharray="3 2"/>
+<text x="239" y="348" text-anchor="middle" font-size="10" fill="#1b1a17">Vulcan Castle ?</text>
+<polygon points="452,422 470,422 461,438" fill="#6B2F5B" stroke="#111" stroke-width="1.5" stroke-dasharray="3 2"/>
+<text x="461" y="450" text-anchor="middle" font-size="10" fill="#1b1a17">Bacchus Castle ?</text>
+<polygon points="551,476 569,476 560,492" fill="#C2607E" stroke="#111" stroke-width="1.5" stroke-dasharray="3 2"/>
+<text x="560" y="504" text-anchor="middle" font-size="10" fill="#1b1a17">Venus Castle ?</text>
+<polygon points="677,599 695,599 686,615" fill="#8FA3B0" stroke="#111" stroke-width="1.5" stroke-dasharray="3 2"/>
+<text x="686" y="627" text-anchor="middle" font-size="10" fill="#1b1a17">Mercury Castle ?</text>
+<polygon points="810.1999999999999,747.2 828.1999999999999,747.2 819.1999999999999,763.2" fill="#2E6FA3" stroke="#111" stroke-width="1.5" stroke-dasharray="3 2"/>
+<text x="819.1999999999999" y="775.2" text-anchor="middle" font-size="10" fill="#1b1a17">Neptune Castle ?</text>
+<polygon points="293,386 311,386 302,402" fill="#3A3542" stroke="#111" stroke-width="1.5" stroke-dasharray="3 2"/>
+<text x="302" y="414" text-anchor="middle" font-size="10" fill="#1b1a17">Pluto’s Warrens ?</text>
+<rect x="755" y="233" width="6" height="6" fill="#A8322D" stroke="#111"/>
+<text x="758" y="252" text-anchor="middle" font-size="10" fill="#1b1a17">Phobos Tower</text>
+<rect x="695.5999999999999" y="125" width="6" height="6" fill="#A8322D" stroke="#111"/>
+<text x="698.5999999999999" y="144" text-anchor="middle" font-size="10" fill="#1b1a17">Deimos Tower</text>
+<rect x="792.1999999999999" y="181.88" width="6" height="6" fill="#333" stroke="#111"/>
+<text x="795.1999999999999" y="200.88" text-anchor="middle" font-size="10" fill="#1b1a17">The Metas Bridge</text>
+<rect x="893" y="269" width="6" height="6" fill="#333" stroke="#111"/>
+<text x="896" y="288" text-anchor="middle" font-size="10" fill="#1b1a17">The Pass Fort ?</text>
+<circle cx="485.59999999999997" cy="380" r="26.400000000000002" fill="#ffffff88" stroke="#c8a24a" stroke-width="2" stroke-dasharray="4 3"/>
+<text x="485.59999999999997" y="396" text-anchor="middle" font-size="10" fill="#1b1a17">Olympus</text>
+<text x="480.79999999999995" y="333.79999999999995" font-size="10" font-style="italic" fill="#24485e">Argos</text>
+<text x="766.4000000000001" y="130.39999999999998" font-size="10" font-style="italic" fill="#24485e">Furor</text>
+<text x="862.4000000000001" y="182.60000000000002" font-size="10" font-style="italic" fill="#24485e">Metas</text>
+<text x="1240" y="806" text-anchor="end" font-size="10" fill="#333">1 grid = 10 km · north up · dashed = inferred</text>
+<line x1="92" y1="20" x2="92" y2="812" stroke="#00000010"/>
+<line x1="212" y1="20" x2="212" y2="812" stroke="#00000010"/>
+<line x1="332" y1="20" x2="332" y2="812" stroke="#00000010"/>
+<line x1="452" y1="20" x2="452" y2="812" stroke="#00000010"/>
+<line x1="572" y1="20" x2="572" y2="812" stroke="#00000010"/>
+<line x1="692" y1="20" x2="692" y2="812" stroke="#00000010"/>
+<line x1="812" y1="20" x2="812" y2="812" stroke="#00000010"/>
+<line x1="932" y1="20" x2="932" y2="812" stroke="#00000010"/>
+<line x1="1052" y1="20" x2="1052" y2="812" stroke="#00000010"/>
+<line x1="1172" y1="20" x2="1172" y2="812" stroke="#00000010"/>
+<line x1="20" y1="56" x2="1244" y2="56" stroke="#00000010"/>
+<line x1="20" y1="176" x2="1244" y2="176" stroke="#00000010"/>
+<line x1="20" y1="296" x2="1244" y2="296" stroke="#00000010"/>
+<line x1="20" y1="416" x2="1244" y2="416" stroke="#00000010"/>
+<line x1="20" y1="536" x2="1244" y2="536" stroke="#00000010"/>
+<line x1="20" y1="656" x2="1244" y2="656" stroke="#00000010"/>
+<line x1="20" y1="776" x2="1244" y2="776" stroke="#00000010"/>
+</svg>
