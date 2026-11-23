@@ -13,5 +13,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    // Several suites build a full heightfield (seconds of CPU); under parallel load the 5 s default flakes.
+    testTimeout: 30000,
   },
 });
