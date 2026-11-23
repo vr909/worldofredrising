@@ -49,9 +49,9 @@ Source of truth in code: `src/render/palette.ts` (scene), `src/world/houses.ts` 
 | skyZenith / skyHorizon | `#6F8FB0` / `#EBCDA3` | Sky gradient; horizon matches fog |
 | sun | `#FFD9A3` | Key light, azimuth 235° (SW), elevation 24° |
 | fog | `#DCCBB0` | Warm aerial perspective |
-| grass / meadow | `#9DAA6A` / `#B9B477` | Plains, glens |
+| grass / meadow | `#86A35A` / `#A2AC66` | Plains, glens (greener after M1 review: the warm sun + ACES pushed them to khaki) |
 | forestFloor | `#4F6B3F` | Under trees |
-| highlandMoss | `#7E8F5A` | Highlands |
+| highlandMoss | `#71894F` | Highlands |
 | rock / highRock | `#8A7E70` / `#A39A8E` | Slopes > ~35°, peaks |
 | sandstone | `#C9A877` | Postern Hills, Minerva |
 | sand / marsh | `#D8C79A` / `#7C8A62` | Shores / marshes |

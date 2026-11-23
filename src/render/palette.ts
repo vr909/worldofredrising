@@ -37,10 +37,10 @@ export const SUMMER: SeasonPalette = {
   ambientGround: '#6B5A45',
   fog: '#DCCBB0',
   terrain: {
-    grass: '#9DAA6A',
-    meadow: '#B9B477',
+    grass: '#86A35A',
+    meadow: '#A2AC66',
     forestFloor: '#4F6B3F',
-    highlandMoss: '#7E8F5A',
+    highlandMoss: '#71894F',
     rock: '#8A7E70',
     highRock: '#A39A8E',
     sand: '#D8C79A',

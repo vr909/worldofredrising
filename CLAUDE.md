@@ -31,7 +31,7 @@ npm run check              # format check + typecheck + lint + test + build (mus
 npm run shot -- overview castle-mars overview-winter   # screenshots → screenshots/*.png
 npm run layout:preview     # 2D map of the layout → docs/images/layout-preview.svg
 ```
-Views for `shot`: `overview`, any place id from `src/world/layout.ts`, and `<view>-winter`.
+Views for `shot`: `overview`, any place id from `src/world/layout.ts`, `<view>-winter`, and `<view>@0.5` (pinned season blend; needs the driver support from T04 round 2).
 
 ## Conventions
 TypeScript strict, no `any`. World units = display km; +x east, −z north. Pure logic in `.ts` with tests.
