@@ -10,8 +10,8 @@ const f = (n: number) => String(Math.round(n * 100) / 100);
 function area(pts: readonly Pt[]): number {
   let a = 0;
   for (let i = 0; i < pts.length; i++) {
-    const [x1, y1] = pts[i];
-    const [x2, y2] = pts[(i + 1) % pts.length];
+    const [x1, y1] = pts[i] as Pt;
+    const [x2, y2] = pts[(i + 1) % pts.length] as Pt;
     a += x1 * y2 - x2 * y1;
   }
   return a / 2;
@@ -36,8 +36,8 @@ export const mx = (pts: readonly Pt[]): Pt[] => pts.map(([x, y]) => [64 - x, y])
  */
 export function sym(right: readonly Pt[]): Pt[] {
   const left = mx(right).reverse();
-  const first = right[0];
-  const last = right[right.length - 1];
+  const first = right[0] as Pt;
+  const last = right[right.length - 1] as Pt;
   const out: Pt[] = [...right];
   left.forEach((p, i) => {
     if (i === 0 && p[0] === last[0] && p[1] === last[1]) return;
