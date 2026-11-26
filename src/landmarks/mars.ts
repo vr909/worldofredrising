@@ -87,7 +87,7 @@ export function marsCastle(k: Kit): void {
     for (let i = 0; i < 3; i++) {
       k.slit(ku + nx * 0.14, kv + nz * 0.14, base + 0.14 + i * 0.1, Math.atan2(nx, nz), 0.012, 0.045);
     }
-    k.pole(ku, kv, kTop + 0.15, 0.18, p.trim);
+    k.pole(ku, kv, kTop + 0.15, 0.18, p.trim, 1.6);
   }
 
   // --- west gatehouse: swells out as a turreted fortress -----------------------------------

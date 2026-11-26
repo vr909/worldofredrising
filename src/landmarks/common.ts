@@ -95,7 +95,7 @@ export function gatehouse(
     );
   }
   // banner poles on the towers
-  for (const s of [-1, 1]) k.pole(s * hw, -0.1, top + tall + (o.roofH ?? tr * 3.4) + 0.03, 0.12, p.trim);
+  for (const s of [-1, 1]) k.pole(s * hw, -0.1, top + tall + (o.roofH ?? tr * 3.4) + 0.03, 0.12, p.trim, 0.7);
 }
 
 /** Paved courtyard / square. */

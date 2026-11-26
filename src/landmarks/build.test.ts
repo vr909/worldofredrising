@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generateHeightfield } from '../terrain/heightfield';
 import { LANDMARKS } from '../world/layout';
-import { buildLandmark, RECIPES } from './build';
+import { bannerAnchors, buildLandmark, RECIPES } from './build';
 
 const hf = generateHeightfield({ cellSize: 0.25, seed: 1729 });
 
@@ -56,5 +56,23 @@ describe('landmark recipes', () => {
     console.log(rows.join('\n'), `\nTOTAL ${Math.round(total)} tris, ${draws} draws`);
     expect(total).toBeLessThan(200000);
     expect(draws).toBeLessThanOrEqual(60);
+  });
+
+  it('gives every castle at least one banner anchor above ground and inside the site', () => {
+    for (const l of LANDMARKS) {
+      if (l.kind === 'olympus') continue;
+      const a = bannerAnchors(hf, l);
+      expect(a.length, l.id).toBeGreaterThanOrEqual(1);
+      for (const {
+        position: [x, y, z],
+        scale,
+      } of a) {
+        expect(y, `${l.id} anchor height`).toBeGreaterThan(hf.heightAt(x, z));
+        expect(Math.hypot(x - l.position[0], z - l.position[1]), `${l.id} anchor reach`).toBeLessThan(
+          l.site.radius * 1.7,
+        );
+        expect(scale).toBeGreaterThan(0);
+      }
+    }
   });
 });

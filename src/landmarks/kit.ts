@@ -69,11 +69,13 @@ const v3 = new Vector3();
 export class Kit {
   readonly parts: Record<Bucket, BufferGeometry[]> = { stone: [], roof: [], trim: [] };
   readonly rng: () => number;
+  /** Banner anchors in castle-local space (pole tops); converted to world space by build.ts. */
+  readonly anchors: { x: number; y: number; z: number; scale: number }[] = [];
   /** World position of the castle origin and rotation (castle-local -> world). */
   readonly px: number;
   readonly pz: number;
-  private readonly ca: number;
-  private readonly sa: number;
+  readonly ca: number;
+  readonly sa: number;
   private stack: Frame[] = [{ ou: 0, ov: 0, f: 0 }];
 
   constructor(
@@ -664,9 +666,10 @@ export class Kit {
     for (let i = 0; i < 3; i++) this.slit(u + r, v, topY - 0.06 - i * 0.06, Math.PI / 2, 0.006, 0.022);
   }
 
-  /** Banner pole (cloth is added by the banner system, T08). */
-  pole(u: number, v: number, y0: number, h: number, c: Color): void {
+  /** Banner pole (cloth is added by the banner system, T08). Records an anchor at the pole top. */
+  pole(u: number, v: number, y0: number, h: number, c: Color, scale = 1): void {
     this.cyl('trim', u, v, 0.0035, 0.0025, y0, y0 + h, 5, c, { ao: 1, vary: 0 });
+    this.anchors.push({ x: this.lx(u, v), y: y0 + h, z: this.lz(u, v), scale });
   }
 
   /** Chimney stack. */
