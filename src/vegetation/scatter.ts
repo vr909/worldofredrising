@@ -7,8 +7,8 @@
  * canyon walls and above the tree line. The result is shuffled once per species, so the first N instances are an
  * even spatial sample: lowering `mesh.count` thins the whole forest instead of chopping regions off.
  */
-import { LANDMARKS, RIVERS } from '../world/layout';
-import { smoothstep } from '../world/geometry';
+import { LANDMARKS, REGIONS, RIVERS } from '../world/layout';
+import { signedDistanceToPolygon, smoothstep } from '../world/geometry';
 import type { Heightfield } from '../terrain/heightfield';
 
 export type SpeciesId = 'conifer' | 'broadleaf' | 'olive' | 'orchard' | 'vine' | 'reed';
@@ -203,6 +203,7 @@ function nearRiver(x: number, z: number, margin: number): boolean {
   return false;
 }
 
+const NORTH_WOODS = REGIONS.find((r) => r.id === 'north-woods')!;
 const SITES = LANDMARKS.filter((l) => l.site.ground !== 'floating');
 const MARS = LANDMARKS.find((l) => l.id === 'castle-mars')!;
 /** Castles that sit in a clearing in the middle of forest (canon: Diana and Apollo, pp.168, 340). */
@@ -321,9 +322,9 @@ export function scatterVegetation(hf: VegetationField, opts: ScatterOptions = {}
       if (h < 0.02 || h > TREE_LINE) continue;
 
       // Acceptance probability and species by region.
-      let p = 0;
-      let sp: SpeciesId = 'broadleaf';
-      let edge = 1; // 1 = deep in the stand, small = ragged edge (trees get smaller)
+      let p: number;
+      let sp: SpeciesId;
+      let edge: number; // 1 = deep in the stand, small = ragged edge (trees get smaller)
       const f = S.forest(x, z);
       switch (region) {
         case 'greatwoods': {
@@ -335,9 +336,12 @@ export function scatterVegetation(hf: VegetationField, opts: ScatterOptions = {}
           break;
         }
         case 'north-woods': {
-          p = smoothstep(0.04, 0.5, f) * 0.95 + 0.05;
+          // Dense from the region's edge inward, ragged on the fringe.
+          const depth = -signedDistanceToPolygon([x, z], NORTH_WOODS.polygon);
+          const body = smoothstep(0.0, 2.2, depth + (fbm(x * 0.7, z * 0.7, seed + 29) - 0.5) * 1.6);
+          p = Math.max(smoothstep(0.04, 0.5, f) * 0.8, body) * 0.97;
           sp = rng() < 0.93 ? 'conifer' : 'broadleaf';
-          edge = smoothstep(0.1, 0.7, f);
+          edge = 0.45 + 0.55 * Math.max(body, smoothstep(0.1, 0.7, f));
           break;
         }
         case 'highlands': {
@@ -373,7 +377,7 @@ export function scatterVegetation(hf: VegetationField, opts: ScatterOptions = {}
         }
         default: {
           // Plains and anything unlisted: scattered copses of broadleaf, denser beside the Greatwoods.
-          const copse = smoothstep(0.6, 0.72, fbm(x * 0.24, z * 0.24, seed + 17));
+          const copse = smoothstep(0.68, 0.8, fbm(x * 0.2, z * 0.2, seed + 17));
           p = copse * 0.55 + smoothstep(0.1, 0.6, f) * 0.5;
           sp = rng() < 0.12 ? 'conifer' : 'broadleaf';
           edge = 0.6 + 0.4 * copse;
@@ -393,7 +397,7 @@ export function scatterVegetation(hf: VegetationField, opts: ScatterOptions = {}
       if (S.waterNear(x, z, 0.06) || nearRiver(x, z, 0.09)) continue;
 
       const t = rng();
-      const size = (0.72 + 0.7 * Math.pow(rng(), 1.4)) * (0.72 + 0.34 * edge);
+      const size = (0.8 + 0.7 * Math.pow(rng(), 1.4)) * (0.72 + 0.34 * edge);
       const aspect = sp === 'olive' ? 0.9 + 0.4 * rng() : 0.9 + 0.2 * rng();
       push(
         sp,
@@ -426,14 +430,14 @@ export function scatterVegetation(hf: VegetationField, opts: ScatterOptions = {}
         // Keep a soft edge: the outer rows are sometimes missing.
         const edgeU = Math.abs(u) / (b.w / 2);
         const edgeV = Math.abs(v) / (b.d / 2);
-        if (Math.max(edgeU, edgeV) > 0.85 && rng() < 0.35) continue;
+        if (Math.max(edgeU, edgeV) > 0.85 && rng() < 0.2) continue;
         if (insideSite(x, z, 1.3)) continue;
         if (S.slopeTan(x, z) > 0.2 || S.waterNear(x, z, 0.08) || nearRiver(x, z, 0.1)) continue;
         const h = hf.heightAt(x, z);
         if (h < 0.02) continue;
         const t = rng();
         if (b.species === 'orchard') {
-          push('orchard', x, z, 0.85 + 0.3 * rng(), rng() * Math.PI * 2, rng() * 0.03, rng() * 6.28, t);
+          push('orchard', x, z, 1.05 + 0.3 * rng(), rng() * Math.PI * 2, rng() * 0.03, rng() * 6.28, t);
         } else {
           // Vine rows run along the block axis; yaw aligns each strip with it.
           push('vine', x, z, 0.95 + 0.1 * rng(), -a, 0, 0, t, 0.002);
@@ -469,7 +473,7 @@ export function scatterVegetation(hf: VegetationField, opts: ScatterOptions = {}
         if (!wetEdge) {
           if (zone.region !== 'southern-marshes' || r > 0.18 * bed) continue;
         } else if (r > zone.keep * (0.35 + 0.65 * bed)) continue;
-        if (S.waterAt(x, z)) continue;
+        if (S.waterAt(x, z) || nearRiver(x, z, 0.01)) continue;
         if (insideSite(x, z, 1.2)) continue;
         push('reed', x, z, 0.75 + 0.6 * rng(), rng() * Math.PI * 2, rng() * 0.08, rng() * 6.28, rng(), 0.004);
       }

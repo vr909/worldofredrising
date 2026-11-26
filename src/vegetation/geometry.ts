@@ -120,8 +120,8 @@ function blob(
   rgb: Color,
   seed: number,
   lump = 0.18,
-  shadeLo = 0.58,
-  shadeHi = 1.1,
+  shadeLo = 0.56,
+  shadeHi = 0.98,
 ) {
   const g = shape === 'ico' ? new IcosahedronGeometry(1, 0) : new OctahedronGeometry(1, 0);
   const p = g.getAttribute('position');
@@ -148,9 +148,9 @@ function conifer(): BufferGeometry {
   const b = new Builder(H);
   const c = col(SUMMER.foliage.conifer);
   prism(b, 3, 0.011, 0.007, 0, 0.05, TRUNK);
-  cone(b, 7, 0.06, 0.035, 0.115, c, 0.3, 0.52, 0.95);
-  cone(b, 7, 0.048, 0.1, 0.1, c, 0.9, 0.58, 1.02);
-  cone(b, 6, 0.034, 0.17, 0.1, c, 0.1, 0.65, 1.12);
+  cone(b, 7, 0.06, 0.035, 0.115, c, 0.3, 0.66, 1.0);
+  cone(b, 7, 0.048, 0.1, 0.1, c, 0.9, 0.72, 1.06);
+  cone(b, 6, 0.034, 0.17, 0.1, c, 0.1, 0.78, 1.16);
   return b.build();
 }
 
@@ -160,7 +160,7 @@ function broadleaf(): BufferGeometry {
   const c = col(SUMMER.foliage.broadleaf);
   prism(b, 3, 0.014, 0.009, 0, 0.07, TRUNK);
   blob(b, 'ico', [0, 0.12, 0], [0.062, 0.078, 0.062], c, 1);
-  blob(b, 'octa', [0.022, 0.185, 0.012], [0.04, 0.045, 0.04], c, 2, 0.12, 0.7, 1.15);
+  blob(b, 'octa', [0.022, 0.185, 0.012], [0.04, 0.045, 0.04], c, 2, 0.12, 0.66, 1.0);
   return b.build();
 }
 

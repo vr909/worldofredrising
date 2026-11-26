@@ -16,7 +16,7 @@ import { SPECIES, STRIDE, scatterVegetation, type Scatter, type SpeciesId } from
 /** Per-species instance colour jitter: [value spread, hue spread]. */
 const JITTER: Record<SpeciesId, [number, number]> = {
   conifer: [0.2, 0.1],
-  broadleaf: [0.28, 0.16],
+  broadleaf: [0.26, 0.09],
   olive: [0.16, 0.1],
   orchard: [0.14, 0.1],
   vine: [0.18, 0.12],
