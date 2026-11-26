@@ -1,6 +1,6 @@
 /**
  * Landmarks (T05): procedural castles, towers, the Metas bridge and the Pass Fort, one merged mesh set
- * (stone / roof / trim = at most 3 draw calls) per landmark. Olympus is still a placeholder until T06.
+ * (stone / roof / trim = at most 3 draw calls) per landmark.
  *
  * Interaction contract: click -> store.select(id); hover -> store.hover(id | null) with stopPropagation and a
  * pointer cursor. Hovered / selected castles get a warm emissive lift (no outline). Hidden when the 'inferred'
@@ -15,6 +15,7 @@ import { LANDMARKS } from '../world/layout';
 import type { Landmark } from '../world/types';
 import { buildLandmark } from './build';
 import { makeCastleMaterial } from './materials';
+import { Olympus } from './olympus/Olympus';
 
 export function Landmarks() {
   const inferred = useStore((s) => s.layers.inferred);
@@ -22,7 +23,7 @@ export function Landmarks() {
     <group name="landmarks">
       {LANDMARKS.filter((l) => inferred || l.confidence !== 'inferred').map((l) =>
         l.kind === 'olympus' ? (
-          <OlympusPlaceholder key={l.id} landmark={l} />
+          <Olympus key={l.id} landmark={l} />
         ) : (
           <BuiltLandmark key={l.id} landmark={l} />
         ),
@@ -110,29 +111,6 @@ function BuiltLandmark({ landmark: l }: { landmark: Landmark }) {
       {parts.map(([g, m], i) =>
         g ? <mesh key={i} geometry={g} material={m} castShadow={shadows} receiveShadow /> : null,
       )}
-    </group>
-  );
-}
-
-/** PLACEHOLDER: removed when T06 lands. Floating graybox for Olympus, isolated here on purpose. */
-function OlympusPlaceholder({ landmark: l }: { landmark: Landmark }) {
-  const hf = useHeightfield();
-  const handlers = useHandlers(l.id);
-  const hovered = useStore((s) => s.hoveredId === l.id);
-  const selected = useStore((s) => s.selectedId === l.id);
-  const emissive = selected ? '#5a4310' : hovered ? '#2c2208' : '#000000';
-  const y = hf.riverSurfaceAt('argos', 0.55) + (l.site.height ?? 2.6);
-  const r = l.site.radius;
-  return (
-    <group position={[l.position[0], y, l.position[1]]} {...handlers}>
-      <mesh rotation-x={Math.PI} position-y={-0.6} castShadow>
-        <coneGeometry args={[r, 2.2, 9]} />
-        <meshStandardMaterial color="#8d8478" emissive={emissive} flatShading />
-      </mesh>
-      <mesh position-y={0.9} castShadow>
-        <cylinderGeometry args={[0.18, 0.35, 1.4, 8]} />
-        <meshStandardMaterial color="#efe9dc" emissive={emissive} />
-      </mesh>
     </group>
   );
 }
