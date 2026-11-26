@@ -99,3 +99,31 @@ export function blade(bx: number, by: number, tx: number, ty: number, w: number)
     [mxp - nx, myp - ny],
   ];
 }
+
+/**
+ * Thick polyline outline with mitred joins and pointed end caps (first and last point are the tips).
+ * `w` is the full width at the interior vertices.
+ */
+export function zig(pts: readonly Pt[], w: number): Pt[] {
+  const left: Pt[] = [];
+  const right: Pt[] = [];
+  for (let i = 1; i < pts.length - 1; i++) {
+    const [px, py] = pts[i - 1] as Pt;
+    const [x, y] = pts[i] as Pt;
+    const [nx, ny] = pts[i + 1] as Pt;
+    const d1 = Math.hypot(x - px, y - py) || 1;
+    const d2 = Math.hypot(nx - x, ny - y) || 1;
+    const n1: Pt = [-(y - py) / d1, (x - px) / d1];
+    const n2: Pt = [-(ny - y) / d2, (nx - x) / d2];
+    let mxv = n1[0] + n2[0];
+    let myv = n1[1] + n2[1];
+    const ml = Math.hypot(mxv, myv) || 1;
+    mxv /= ml;
+    myv /= ml;
+    const cos = mxv * n1[0] + myv * n1[1];
+    const k = w / 2 / Math.max(cos, 0.45);
+    left.push([x + mxv * k, y + myv * k]);
+    right.push([x - mxv * k, y - myv * k]);
+  }
+  return [pts[0] as Pt, ...left, pts[pts.length - 1] as Pt, ...right.reverse()];
+}
