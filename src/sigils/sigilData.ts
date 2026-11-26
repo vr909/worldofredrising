@@ -150,68 +150,83 @@ const apollo = [
   bar(27, 45, 37, 45, 3, false),
 ].join('');
 
+function ear(x: number, ang: number): string {
+  const r = (pts: readonly Pt[]) => rot(pts, ang, x, 62);
+  const top = r([[x, 28]])[0] as Pt;
+  const parts = [bar(x, 63, top[0], top[1], 2.4)];
+  for (let k = 0; k < 4; k++) {
+    const y = 50 - k * 6;
+    parts.push(P(r(blade(x, y, x - 5.5, y - 8, 2.5))), P(r(blade(x, y, x + 5.5, y - 8, 2.5))));
+  }
+  parts.push(P(r(blade(x, 31, x, 17, 2.8))));
+  return parts.join('');
+}
 const ceres = [
-  // sickle: a broad crescent arching over the sheaf, handle at the right
-  'M5 27A28 28 0 0 1 59 21L55 26A22 22 0 0 0 12 31Z',
-  bar(54, 22, 60, 31, 4.5),
-  // sheaf: five fanned ears and a tied waist
-  ...[-34, -17, 0, 17, 34].map((a) => P(rot(blade(32, 64, 32, 26 + Math.abs(a) * 0.25, 5.6), a, 32, 64))),
-  H([
-    [20, 49],
-    [44, 49],
-    [43, 53],
-    [21, 53],
-  ]),
+  // sickle: crescent blade over the ear tips, handle at the right
+  'M5 26A28 28 0 0 1 59 20L55 25A22 22 0 0 0 12 30Z',
+  bar(54, 21, 60, 30, 4.5),
+  // three distinct wheat ears (stalk + herringbone kernels), bound by a band near the base
+  ear(19, -7),
+  ear(32, 0),
+  ear(45, 7),
+  bar(11, 54, 53, 54, 4.6),
 ].join('');
 
-const bolt: Pt[] = [
-  [35, 0],
-  [47, 0],
-  [41, 26],
-  [50, 26],
-  [27, 64],
-  [31, 37],
-  [22, 37],
+// two fat zig-zag bolts crossed at +-35 degrees; each has two big kinks and pointed ends
+const BOLT: Pt[] = [
+  [38, 0],
+  [12, 33],
+  [27, 33],
+  [19, 64],
+  [52, 22],
+  [35, 22],
 ];
-const jupiter = [P(rot(bolt, 24)), P(mx(rot(bolt, 24)))].join('');
+const slim = (dy: number): Pt[] => BOLT.map(([x, y]): Pt => [32 + (x - 32) * 0.62, y + dy]);
+// two slim bolts crossed at +-28 degrees; the crossing sits low on the thin tips so both kinks stay readable
+const jupiter = [P(rot(slim(-4), 28, 32, 32)), P(mx(rot(slim(-4), 28, 32, 32)))].join('');
 
+const trainRim: Pt[] = [];
+for (let a = 38; a <= 142; a += 7) {
+  const r = Math.round((a - 38) / 7) % 2 === 0 ? 25 : 21.5;
+  const rad = (a * Math.PI) / 180;
+  trainRim.push([40 + Math.cos(rad) * r, 38 + Math.sin(rad) * r]);
+}
+const eye = (a: number, r: number): string => {
+  const rad = (a * Math.PI) / 180;
+  const x = 40 + Math.cos(rad) * r;
+  const y = 38 + Math.sin(rad) * r;
+  return circ(x, y, 3.4, false) + circ(x, y, 1.3, true);
+};
 const juno = [
-  // crest
-  circ(19, 5.5, 2, true),
-  circ(14, 7, 2, true),
-  circ(24, 7, 2, true),
-  bar(19, 7, 19, 12, 1.6),
-  bar(14, 8, 17, 12, 1.4),
-  bar(24, 8, 21, 12, 1.4),
-  // head, beak, neck, body
-  circ(19, 15, 5, true),
+  // crest: three dots on short stalks
+  circ(13, 3.5, 2, true),
+  circ(18.5, 2, 2, true),
+  circ(24, 3.5, 2, true),
+  bar(13.6, 5, 16.5, 9, 1.3),
+  bar(18.5, 4, 18.5, 8, 1.3),
+  bar(23.4, 5, 20.5, 9, 1.3),
+  // head, beak, S-neck, body
+  circ(19, 12, 4.6, true),
   P([
-    [14, 15],
-    [5, 17],
-    [14, 18],
+    [14.8, 11],
+    [6, 14],
+    [14.8, 14.5],
   ]),
+  bar(20, 15, 27, 25, 5.4),
   P([
-    [16, 18],
-    [22, 18],
-    [31, 31],
-    [25, 34],
+    [26, 25],
+    [34, 21],
+    [46, 24],
+    [52, 32],
+    [46, 40],
+    [34, 40],
+    [27, 33],
   ]),
-  P([
-    [24, 30],
-    [40, 26],
-    [52, 36],
-    [46, 46],
-    [34, 48],
-    [26, 40],
-  ]),
-  // train: three long eyed feathers falling below the body
-  P(blade(36, 40, 36, 64, 8)),
-  P(blade(34, 40, 17, 58, 6.5)),
-  P(blade(38, 40, 55, 58, 6.5)),
-  circ(36, 55, 3.6, false),
-  circ(36, 55, 1.3, true),
-  circ(23, 53, 3, false),
-  circ(49, 53, 3, false),
+  // trailing fan with eyed feathers
+  P([[40, 38], ...trainRim]),
+  eye(64, 16),
+  eye(90, 16),
+  eye(116, 16),
 ].join('');
 
 const pluto = [
@@ -302,51 +317,53 @@ const vulcan = [
 ].join('');
 
 const venus = [
-  // dove in flight, facing left: head, beak, body, tail, raised wing
-  circ(16, 27, 6, true),
+  // one dove in flight, wings raised, myrtle sprig in the beak
+  circ(15, 31, 5, true),
   P([
-    [11, 26],
-    [2, 29],
-    [11, 31],
+    [11, 30],
+    [2, 32],
+    [11, 34],
   ]),
   P([
-    [14, 30],
-    [24, 27],
-    [38, 34],
+    [14, 34],
+    [25, 30],
+    [42, 38],
     [60, 54],
-    [44, 52],
-    [28, 48],
-    [18, 40],
+    [43, 53],
+    [27, 47],
+    [17, 40],
   ]),
   P([
-    [20, 34],
-    [26, 12],
-    [40, 2],
-    [54, 3],
-    [47, 16],
-    [40, 30],
-    [34, 46],
+    [24, 37],
+    [13, 20],
+    [17, 5],
+    [29, 10],
+    [34, 26],
+    [34, 40],
+  ]),
+  P([
+    [34, 38],
+    [36, 14],
+    [47, 2],
+    [57, 9],
+    [53, 26],
+    [45, 42],
   ]),
   H([
-    [38, 14],
-    [44, 8],
-    [46, 10],
-    [41, 18],
+    [21, 11],
+    [25, 20],
+    [22, 21],
   ]),
   H([
-    [33, 24],
-    [40, 18],
-    [42, 20],
-    [36, 28],
+    [47, 10],
+    [50, 17],
+    [47, 18],
   ]),
-  // myrtle sprig hanging from the beak
-  bar(5, 31, 9, 56, 2),
-  P(blade(5.6, 38, 15, 36, 3.2)),
-  P(blade(5.6, 38, -1, 34, 3.2)),
-  P(blade(7, 47, 17, 47, 3.2)),
-  P(blade(7, 47, 0, 45, 3.2)),
-  P(blade(9, 56, 15, 62, 3)),
-  P(blade(9, 56, 3, 62, 3)),
+  // sprig hangs from the beak tip (joined to it)
+  bar(3, 32, 4, 42, 2),
+  P(blade(4, 36, 11, 38, 2.6)),
+  P(blade(4, 40, 11, 44, 2.6)),
+  P(blade(4, 43, 0, 49, 2.6)),
 ].join('');
 
 const mercury = [
