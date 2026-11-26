@@ -3,6 +3,7 @@
  *   ?software=1|0   force / forbid the "no GPU" cheap path (default: detected)
  *   ?demand=0       keep the frame loop on 'always' (used by `npm run perf` so rAF gaps measure render cost)
  *   ?adapt=1|0      runtime quality adaptation + slow-device detection (default: on, but OFF under automation)
+ *   ?refine=0     no idle refinement (the probe measures interactive cost)
  *   ?detail=0|1|2   force the terrain shader detail
  *   ?dpr=<n>  ?shadows=0|1  ?mist=0|1  ?ambient=<fps>
  */
@@ -12,6 +13,8 @@ export interface PerfOverrides {
   software: boolean | null;
   demand: boolean;
   adapt: boolean;
+  /** Idle progressive refinement (sharp stills on the software path). */
+  refine: boolean;
   flags: Partial<PerfFlags>;
 }
 
@@ -34,6 +37,7 @@ export function parsePerfOverrides(search: string, automated: boolean): PerfOver
     software: bool(q.get('software')),
     demand: q.get('demand') !== '0',
     adapt: bool(q.get('adapt')) ?? !automated,
+    refine: q.get('refine') !== '0',
     flags,
   };
 }
