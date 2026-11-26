@@ -35,8 +35,8 @@ export interface OlympusGeometry {
   tris: number;
 }
 
-const ROCK_HI = new Color('#7b7266');
-const ROCK_LO = new Color('#2f2b27');
+const ROCK_HI = new Color('#6a6054');
+const ROCK_LO = new Color('#231f1c');
 const SNOW = new Color('#eef1f4');
 const MARBLE = new Color('#eee8d8');
 const GOLD = new Color('#dba93a');
@@ -45,7 +45,7 @@ const WINDOW = new Color('#ffc46a');
 /** Depth of the rock below the plateau (km). */
 export const ROCK_DEPTH = 2.0;
 /** Height of the summit mound above the plateau rim (km). */
-export const MOUND = 0.55;
+export const MOUND = 0.85;
 
 type Rng = () => number;
 
@@ -99,9 +99,14 @@ function rockColor(y: number, rng: Rng, ny: number): Color {
   // strata banding + face jitter
   c.multiplyScalar(0.88 + 0.12 * Math.sin(y * 17.0) + (rng() - 0.5) * 0.18);
   // snow band on the upper slopes (year-round); winter extends it in the shader
-  const line = -0.2 + (rng() - 0.5) * 0.3;
+  const line = -0.1 + (rng() - 0.5) * 0.26;
   const snow = Math.min(1, Math.max(0, (y - line) / 0.22)) * (ny > -0.3 ? 1 : 0.4);
   return c.lerp(SNOW, snow * 0.92);
+}
+
+/** Summit profile: snowy slope rising from the rim, flat on the citadel's plateau. f = r / R. */
+function mound(f: number): number {
+  return Math.min(1, Math.max(0, (1 - f) / 0.62)) ** 1.15;
 }
 
 function buildRock(rng: Rng, R: number): BufferGeometry[] {
@@ -114,9 +119,9 @@ function buildRock(rng: Rng, R: number): BufferGeometry[] {
   for (let i = 0; i < ledges; i++) {
     const s = i / ledges;
     const yTop = -0.04 - s * ROCK_DEPTH * 0.96;
-    const rr = R * Math.pow(1 - s, 0.92);
+    const rr = R * Math.pow(1 - Math.pow(s, 1.5), 0.85);
     rings.push({ y: yTop, r: rr, ledge: true });
-    rings.push({ y: yTop - dy * 0.55, r: rr * 0.84, ledge: false });
+    rings.push({ y: yTop - dy * 0.55, r: rr * 0.9, ledge: false });
   }
   rings.push({ y: -ROCK_DEPTH, r: 0.02, ledge: false });
 
@@ -173,14 +178,18 @@ function buildRock(rng: Rng, R: number): BufferGeometry[] {
     const n = ri === topRings.length - 1 ? 1 : N;
     for (let k = 0; k < n; k++) {
       const a = (k / N) * Math.PI * 2;
-      const rr = R * f * (1 + (ri === 0 ? 0 : (rng() - 0.5) * 0.08));
-      const y = ri === 0 ? 0.03 : 0.04 + MOUND * Math.pow(1 - f, 1.5) + (rng() - 0.5) * 0.05;
+      const rr = R * f * (1 + (ri === 0 ? 0 : (rng() - 0.5) * 0.14));
+      const y = ri === 0 ? 0.03 : 0.04 + MOUND * mound(f) + (rng() - 0.5) * (ri >= 4 ? 0.04 : 0.2);
       row.push(new Vector3(Math.cos(a) * rr, y, Math.sin(a) * rr));
     }
     return row;
   });
   const topTri = (a: Vector3, b: Vector3, c: Vector3) => {
-    const base = SNOW.clone().multiplyScalar(0.93 + rng() * 0.07);
+    const n = ab.subVectors(b, a).cross(ac.subVectors(c, a)).normalize();
+    const rocky = Math.min(1, Math.max(0, (0.82 - n.y) / 0.3));
+    const base = SNOW.clone()
+      .multiplyScalar(0.93 + rng() * 0.07)
+      .lerp(ROCK_HI, rocky * 0.8);
     for (const v of [a, b, c]) {
       pos.push(v.x, v.y, v.z);
       col.push(base.r, base.g, base.b);
@@ -210,10 +219,10 @@ function buildRock(rng: Rng, R: number): BufferGeometry[] {
 
   // summit crags around the citadel base and along the rim
   const crag = (x: number, z: number, r: number, h: number, y: number) => {
-    const cone = new ConeGeometry(r, h, 5, 1);
+    const cone = new IcosahedronGeometry(1, 0);
     const g = prep(
       cone,
-      mat(x, y + h / 2, z, (rng() - 0.5) * 0.25, rng() * 6, (rng() - 0.5) * 0.25),
+      mat(x, y + h / 2, z, (rng() - 0.5) * 0.4, rng() * 6, (rng() - 0.5) * 0.4, r, h / 2, r * 0.8),
       ROCK_HI,
       rng,
       0.35,
@@ -225,22 +234,17 @@ function buildRock(rng: Rng, R: number): BufferGeometry[] {
       const t = (p.getY(i) - y) / h;
       const c = new Color(cA.getX(i), cA.getY(i), cA.getZ(i)).lerp(
         SNOW,
-        Math.min(1, Math.max(0, (t - 0.25) * 1.6)),
+        Math.min(1, Math.max(0, (t - 0.6) * 1.4)),
       );
       cA.setXYZ(i, c.r, c.g, c.b);
     }
     parts.push(g);
   };
-  const moundY = (r: number) => 0.04 + MOUND * Math.pow(Math.max(0, 1 - r / R), 1.5);
-  for (let i = 0; i < 4; i++) {
-    const a = (i / 4) * Math.PI * 2 + 0.6 + rng() * 0.5;
-    const r = R * (0.34 + rng() * 0.1);
-    crag(Math.cos(a) * r, Math.sin(a) * r, 0.16 + rng() * 0.06, 0.28 + rng() * 0.2, moundY(r) - 0.05);
-  }
-  for (let i = 0; i < 6; i++) {
-    const a = (i / 6) * Math.PI * 2 + rng() * 0.6;
-    const r = R * (0.8 + rng() * 0.12);
-    crag(Math.cos(a) * r, Math.sin(a) * r, 0.2 + rng() * 0.12, 0.1 + rng() * 0.14, moundY(r) - 0.04);
+  const moundY = (r: number) => 0.04 + MOUND * mound(r / R);
+  for (let i = 0; i < 7; i++) {
+    const a = (i / 7) * Math.PI * 2 + rng() * 0.5;
+    const r = R * (0.55 + rng() * 0.3);
+    crag(Math.cos(a) * r, Math.sin(a) * r, 0.14 + rng() * 0.1, 0.22 + rng() * 0.22, moundY(r) - 0.06);
   }
 
   // hanging fragments below the island
@@ -249,8 +253,8 @@ function buildRock(rng: Rng, R: number): BufferGeometry[] {
     [-1.2, -1.45, -0.4, 0.14],
     [0.35, -1.9, 0.5, 0.1],
     [-0.5, -0.95, 1.05, 0.12],
-    [0.7, -2.35, -0.25, 0.07],
-    [-0.15, -2.55, 0.3, 0.05],
+    [0.7, -1.85, -0.25, 0.07],
+    [-0.15, -1.95, 0.3, 0.05],
   ];
   for (const [fx, fy, fz, fr] of frags) {
     const s = 1 + (rng() - 0.5) * 0.3;
