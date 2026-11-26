@@ -160,15 +160,34 @@ export function placeMist(hf: Hf, seed = 4242): MistInstances {
     }
   }
 
-  // Cloud collar under Olympus: clear air between it and the Argos below (rock hangs ~1.7 km).
+  // Cloud collar: hugs the waist of Olympus just below the top plateau (not the ground), with a few wisps
+  // trailing downwind. The rock hangs ~2 km below the plateau and the Argos is 2.6 km down, so the collar stays clear.
   const o = olympusAnchor(hf);
-  const collar = 24;
+  const collar = 22;
   for (let i = 0; i < collar; i++) {
     const a = ((i + rng() * 0.6) / collar) * Math.PI * 2;
-    const inner = i % 3 === 0;
-    const r = o.radius * (inner ? 0.6 : 0.85) + rng() * 0.7;
-    const y = o.y - 0.75 - (inner ? 0.35 : 0) + (rng() - 0.5) * 0.25;
-    push(o.x + Math.cos(a) * r, y, o.z + Math.sin(a) * r, 1.7 + rng() * 1.0, 0.8 + rng() * 0.35, 0.78, 1);
+    const r = o.radius * (0.82 + rng() * 0.3);
+    const y = o.y - 0.3 - rng() * 0.35;
+    push(
+      o.x + Math.cos(a) * r,
+      y,
+      o.z + Math.sin(a) * r,
+      1.5 + rng() * 0.9,
+      0.55 + rng() * 0.3,
+      0.72,
+      1,
+      a + Math.PI / 2,
+    );
+  }
+  const wind = 0.4; // downwind direction in x/z (radians)
+  for (let i = 0; i < 7; i++) {
+    const d = o.radius * (0.9 + i * 0.32 + rng() * 0.3);
+    const lateral = (rng() - 0.5) * 1.1;
+    const x = o.x + Math.cos(wind) * d - Math.sin(wind) * lateral;
+    const z = o.z + Math.sin(wind) * d + Math.cos(wind) * lateral;
+    const h = 0.3 + rng() * 0.2;
+    const y = Math.max(o.y - 0.45 - i * 0.12 - rng() * 0.2, hf.heightAt(x, z) + h / 2 + 0.5);
+    push(x, y, z, 2.6 + rng() * 1.4, h, 0.5 - i * 0.04, 1, wind);
   }
 
   return {
