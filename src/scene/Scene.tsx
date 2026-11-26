@@ -7,6 +7,7 @@ import { useEffect, useRef } from 'react';
 import { Atmosphere, SharedUniformsDriver } from '../atmosphere/Atmosphere';
 import { CameraRig } from '../camera/CameraRig';
 import { Landmarks } from '../landmarks/Landmarks';
+import { Banners } from '../sigils/Banners';
 import { useStore } from '../state/store';
 import { Terrain } from '../terrain/Terrain';
 import { Vegetation } from '../vegetation/Vegetation';
@@ -22,6 +23,7 @@ export function Scene() {
       <Water />
       <Landmarks />
       <Vegetation />
+      <Banners />
       <ReadySignal />
     </>
   );
