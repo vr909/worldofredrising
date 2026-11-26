@@ -65,6 +65,8 @@ export interface AppState {
   cameraRequest: CameraRequest | null;
   /** 3D diorama or flat 2D map. */
   viewMode: ViewMode;
+  /** True when the 3D camera has come to rest (set by CameraRig). PerfManager may refine quality while idle. */
+  cameraIdle: boolean;
   perf: PerfFlags;
 
   setReady: () => void;
@@ -76,6 +78,7 @@ export interface AppState {
   setQuality: (q: Quality) => void;
   flyTo: (shot: string, instant?: boolean) => void;
   setViewMode: (m: ViewMode) => void;
+  setCameraIdle: (idle: boolean) => void;
   setPerf: (p: Partial<PerfFlags>) => void;
 }
 
@@ -115,6 +118,7 @@ export const useStore = create<AppState>()((set) => ({
   quality: startQuality,
   cameraRequest: { shot: start.selected ?? start.view ?? 'overview', nonce: 0, instant: true },
   viewMode: start.mode,
+  cameraIdle: true,
   perf: perfForQuality(startQuality),
 
   setReady: () => set({ ready: true }),
@@ -131,6 +135,7 @@ export const useStore = create<AppState>()((set) => ({
   flyTo: (shot, instant) =>
     set((s) => ({ cameraRequest: { shot, instant, nonce: (s.cameraRequest?.nonce ?? 0) + 1 } })),
   setViewMode: (viewMode) => set({ viewMode }),
+  setCameraIdle: (cameraIdle) => set((s) => (s.cameraIdle === cameraIdle ? s : { cameraIdle })),
   setPerf: (p) => set((s) => ({ perf: { ...s.perf, ...p } })),
 }));
 
