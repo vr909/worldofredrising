@@ -4,6 +4,7 @@
  * while the map underneath zooms.
  */
 import { memo, useMemo, type KeyboardEvent } from 'react';
+import { SIGILS } from '../sigils/sigilData';
 import { HOUSES } from '../world/houses';
 import { LANDMARKS, REGIONS, RIVERS } from '../world/layout';
 import { centroid } from '../world/geometry';
@@ -18,16 +19,11 @@ export const MARKERS: readonly Landmark[] = [...LANDMARKS].sort(
 const TRI = 'M-13 -28L13 -28L0 0Z';
 
 /**
- * Inner glyph slot of a House marker. T08 (sigils) replaces this with the real sigil; for now it is the
- * House's initial in parchment, centred in the shield. Drawn in marker pixel units around (0, -19).
+ * Inner glyph slot of a House marker: the House sigil (src/sigils) in parchment, drawn in marker pixel units
+ * inside the shield triangle (64-grid scaled to ~16.6 px, centred on x = 0).
  */
 export function HouseGlyph({ house }: { house: HouseId }) {
-  const letter = HOUSES[house].name.replace(/^House\s+/, '').charAt(0);
-  return (
-    <text className="m2-glyph" x="0" y="-14.2" textAnchor="middle">
-      {letter}
-    </text>
-  );
+  return <path className="m2-glyph" d={SIGILS[house].path} transform="translate(-8.3 -27.2) scale(0.26)" />;
 }
 
 function Shape({ l }: { l: Landmark }) {
