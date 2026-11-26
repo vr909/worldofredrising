@@ -15,9 +15,9 @@ but get refined at the start of their milestone with what we learn (expect chang
 | T04 | M1 | Sky, light, fog, mist, moons | Sonnet | — | Done |
 | T09 | M1 | Lore content for every place | Sonnet | — | Done |
 | T05 | M2-A | Castle kit + per-House recipes, towers, bridge, fort | Sonnet | T01 | Done |
-| T06 | M2-B | Olympus | Sonnet | T04 | Ready |
-| T07 | M2-B | Vegetation | Sonnet | T01, T02, T14 | Ready |
-| T08 | M2-B | Sigils + banners | Sonnet | T05b, T17 | Ready after T05b |
+| T06 | M2-B | Olympus | Sonnet | T04 | Done |
+| T07 | M2-B | Vegetation | Sonnet | T01, T02, T14 | Done |
+| T08 | M2-B | Sigils + banners | Sonnet | T05b, T17 | Done · 4 sigils in round 2 |
 | T10 | M3 | Camera: intro, hero shots, flights, keys | Sonnet | T05, T06 | Scoped |
 | T11 | M3 | UI: placards, index, minimap, gate, about, mobile | Sonnet | T08, T09 | Scoped |
 | T12 | M3 | In-world labels + hover/selection markers | Sonnet | T05, T08 | Scoped |

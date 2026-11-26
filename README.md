@@ -7,10 +7,10 @@ the misty highlands of House Mars, the Argos running to the South Sea, the Great
 (including the one that isn't on the map) and the floating mountain of Olympus. Fly in to any castle, read
 lore placards with page references, and switch between summer and the winter the Argos froze.
 
-> Status: **M1 The Land complete**: terrain, painterly materials, water, sky and lore for every place.
-> Castles, Olympus and forests arrive in M2. See the [task board](docs/TASKS.md).
+> Status: **M2 The Houses complete**: castles for all 13 Houses, Olympus, forests, sigils and banners, a 2D map
+> view, and adaptive performance (including a software-rendering path). Next: M3 The Experience. See the [task board](docs/TASKS.md).
 
-![The Institute valley at the end of M1](docs/images/m1-overview.jpg)
+![The Institute valley at the end of M2](docs/images/m2-overview.jpg)
 
 <details><summary>The world layout (2D)</summary>
 
