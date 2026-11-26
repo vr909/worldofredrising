@@ -34,7 +34,7 @@ export function makeRockMaterial(): MeshStandardMaterial {
           float n = fract(sin(dot(floor(vLp.xz * 5.0 + floor(vLp.y * 5.0)), vec2(12.9898, 78.233))) * 43758.5453);
           float line = mix(-0.3, -0.95, clamp(uSeason * 1.1, 0.0, 1.0));
           float cover = smoothstep(line - 0.12, line + 0.18, vLp.y + (n - 0.5) * 0.28);
-          cover *= smoothstep(-0.1, 0.25, vNy);
+          cover *= smoothstep(0.1, 0.6, vNy);
           diffuseColor.rgb = mix(diffuseColor.rgb, uSnowColor, cover * clamp(uSeason * 1.2, 0.0, 1.0) * 0.9);
         }`,
       );
