@@ -15,9 +15,9 @@ but get refined at the start of their milestone with what we learn (expect chang
 | T04 | M1 | Sky, light, fog, mist, moons | Sonnet | — | Done |
 | T09 | M1 | Lore content for every place | Sonnet | — | Done |
 | T05 | M2-A | Castle kit + per-House recipes, towers, bridge, fort | Sonnet | T01 | Done |
-| T06 | M2-B | Olympus | Sonnet | T04 | Scoped |
-| T07 | M2-B | Vegetation | Sonnet | T01, T02, T14 | Scoped |
-| T08 | M2-B | Sigils + banners | Sonnet | T05, T17 | Scoped |
+| T06 | M2-B | Olympus | Sonnet | T04 | Ready |
+| T07 | M2-B | Vegetation | Sonnet | T01, T02, T14 | Ready |
+| T08 | M2-B | Sigils + banners | Sonnet | T05b, T17 | Ready after T05b |
 | T10 | M3 | Camera: intro, hero shots, flights, keys | Sonnet | T05, T06 | Scoped |
 | T11 | M3 | UI: placards, index, minimap, gate, about, mobile | Sonnet | T08, T09 | Scoped |
 | T12 | M3 | In-world labels + hover/selection markers | Sonnet | T05, T08 | Scoped |
@@ -247,12 +247,55 @@ correct geography (compare with `docs/images/layout-preview.svg`); unit tests fo
 (deterministic, inside polygons) pass; it works with the 3D view never mounted.
 
 ### Wave B (refined after wave A)
-- **T06 Olympus.** Floating inverted mountain with craggy underside, snowy upper slopes, bone-pale marble citadel
-  "like a marble sword", balconies and terraces, warm window glow, tiny medBots. No doors, no dock. Retune T04's
-  cloud collar so it hugs the waist and reads as floating.
-- **T07 Vegetation.** Instanced conifers, broadleaf, olive groves (Minerva), orchards (Ceres), vineyards (Bacchus,
-  inferred), reeds (marsh); winter variants; densities from `perf`.
-- **T08 Sigils & banners.** 13 original SVG sigils + `<Sigil id/>`; waving banners over castles; swap them into T17's markers.
+
+Lessons applied: every builder re-shoots each view after each change (playbook §8); budgets are tied to
+`store.perf`/`quality` (the product owner runs software GL at 20–23 FPS); no compile-affecting flag toggles at runtime.
+
+#### T05b · Banner anchors (small follow-up)
+Export `bannerAnchors(hf, landmark): { position: [x, y, z]; scale: number }[]` from `src/landmarks/build.ts`:
+the world-space tops of the banner poles your recipes already place (Mars spires/keep, Apollo towers, etc.), at least
+one per castle, so T08 can hang banners on them. Unit test: every castle has ≥ 1 anchor, anchors sit above the castle's ground.
+
+#### T06 · Olympus
+**Owns:** `src/landmarks/olympus/**`. **One-time permissions:** in `src/landmarks/Landmarks.tsx` only replace the
+`OlympusPlaceholder` with your `<Olympus/>`; in `src/atmosphere/mistPlacement.ts` only the Olympus cloud-collar placement.
+**Canon:** an artificial floating mountain where the Proctors watch (p.168), "nearly a mile above the Argos" (p.370);
+from below "its peak shimmers with a fairy-tale castle" (p.168). Up close: snow covers the slopes, clouds mask the
+glittering peak, and a **bone-pale citadel at the top of a steep incline "strikes up out of the mountain like a marble
+sword"** (p.370). It has a highest balcony, stone terraces, a dining hall, golden suites and baths (pp.370–380).
+**No doors. No dock** (p.370). medBots pour from it to collect the wounded (p.~187).
+**Requirements:** the island top sits at `riverSurfaceAt('argos', 0.55) + site.height`. A craggy, faceted rock
+underside tapers to a point ~2 km below the top, leaving ≥ 0.5 km of clear air above the river. Snowy upper slopes rise
+to the summit (snow year-round, more in winter). The citadel is slender, tall and blade-like (sword silhouette), with
+cantilevered balconies and terraces, faint warm window glow, gold accents. Optional: a few tiny glowing medBot specks
+circling (animated on the ambient tick). Retune the cloud collar so it hugs the island's waist with wisps trailing, and
+never touches the ground. Click → `select('olympus')`, hover highlight like castles. ≤ 4 draw calls, ≤ 40 k triangles.
+**Views:** `olympus`, `overview`, `olympus-winter`.
+
+#### T07 · Vegetation
+**Owns:** `src/vegetation/**` (replace the stub; already mounted in Scene).
+**Canon cues:** fir woods and oak in the highlands, forests "like homespun quilts" over the foothills (p.166);
+the North Woods (conifer); the Greatwoods, "a primordial wood" (p.168), dense, with Diana and Apollo in clearings;
+Minerva's country of olive trees and wildflowers (pp.217, 254); Ceres's apple trees and orchards (pp.169, 201);
+vineyards for Bacchus (inferred); reeds in the marshes.
+**Requirements:** one InstancedMesh per species (≤ 8 draw calls). Low-poly, painterly and slightly tall and slender
+(.37g). Per-instance scale, lean and hue/value jitter from `palette.foliage`. Scatter by region, splat and slope from
+the Heightfield: none in water, on castle sites (≥ 1.2 × site.radius), on slopes > ~35°, above ~2.0 km, or on canyon
+walls. Orchards and vineyards in rows near their castles. Wind sway in the vertex shader from `uTime` (it advances on the
+ambient tick; static when `ambientFps` is 0). Winter via `uSeason`: snow-capped conifers, bare broadleaf, olives and
+orchards. **Density from perf:** ~60 k instances high, 25 k medium, 8 k low, ~3 k software. Adjust `mesh.count`
+when `perf` changes rather than rebuilding. `castShadow` only when `perf.shadows`. The Greatwoods must read as a forest
+from the overview (no more dark stain).
+**Views:** `overview`, `greatwoods`, `castle-diana`, `north-woods`, `castle-minerva`, `castle-ceres`, `overview-winter`.
+
+#### T08 · Sigils & banners (after T05b)
+**Owns:** `src/sigils/**`. **One-time permission:** `src/map2d/Markers.tsx`, only the `HouseGlyph` slot.
+**Requirements:** 13 **original** SVG sigils per DESIGN §11 and the briefs in `src/world/houses.ts` (a filled
+silhouette inside the downward triangle, readable at 16 px), exported as path data plus a React `<Sigil id size/>`.
+Waving cloth banners in House colour with the sigil (a CanvasTexture atlas drawn from the paths in code, no network),
+hung on `bannerAnchors()`, waving on the ambient tick, toggled by `layers.banners`, ≤ 2 draw calls total, legible as
+colour flags from the overview. Swap the sigils into the 2D map markers.
+**Views:** `castle-mars`, `castle-apollo`, `overview`, `2d:overview`.
 
 ## M3 — The Experience (scoped)
 

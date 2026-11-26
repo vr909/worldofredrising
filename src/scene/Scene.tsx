@@ -9,6 +9,7 @@ import { CameraRig } from '../camera/CameraRig';
 import { Landmarks } from '../landmarks/Landmarks';
 import { useStore } from '../state/store';
 import { Terrain } from '../terrain/Terrain';
+import { Vegetation } from '../vegetation/Vegetation';
 import { Water } from '../water/Water';
 
 export function Scene() {
@@ -20,6 +21,7 @@ export function Scene() {
       <Terrain />
       <Water />
       <Landmarks />
+      <Vegetation />
       <ReadySignal />
     </>
   );
