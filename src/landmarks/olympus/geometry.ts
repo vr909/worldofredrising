@@ -35,8 +35,8 @@ export interface OlympusGeometry {
   tris: number;
 }
 
-const ROCK_HI = new Color('#6a6054');
-const ROCK_LO = new Color('#231f1c');
+const ROCK_HI = new Color('#76736f');
+const ROCK_LO = new Color('#22201f');
 const SNOW = new Color('#eef1f4');
 const MARBLE = new Color('#eee8d8');
 const GOLD = new Color('#dba93a');
@@ -45,7 +45,9 @@ const WINDOW = new Color('#ffc46a');
 /** Depth of the rock below the plateau (km). */
 export const ROCK_DEPTH = 2.0;
 /** Height of the summit mound above the plateau rim (km). */
-export const MOUND = 0.85;
+export const MOUND = 1.3;
+/** Height of the summit shelf (fraction of MOUND) where the citadel is planted. */
+export const SHELF = 0.95;
 
 type Rng = () => number;
 
@@ -102,11 +104,6 @@ function rockColor(y: number, rng: Rng, ny: number): Color {
   const line = -0.1 + (rng() - 0.5) * 0.26;
   const snow = Math.min(1, Math.max(0, (y - line) / 0.22)) * (ny > -0.3 ? 1 : 0.4);
   return c.lerp(SNOW, snow * 0.92);
-}
-
-/** Summit profile: snowy slope rising from the rim, flat on the citadel's plateau. f = r / R. */
-function mound(f: number): number {
-  return Math.min(1, Math.max(0, (1 - f) / 0.62)) ** 1.15;
 }
 
 function buildRock(rng: Rng, R: number): BufferGeometry[] {
@@ -171,25 +168,37 @@ function buildRock(rng: Rng, R: number): BufferGeometry[] {
     }
   }
 
-  // plateau: concentric rings rising to the summit mound, snow-white
-  const topRings = [0.985, 0.8, 0.58, 0.36, 0.18, 0.0];
+  // summit: an irregular craggy peak with four ridges radiating from a small summit shelf for the citadel
+  const topRings = [0.985, 0.88, 0.76, 0.64, 0.52, 0.4, 0.3, 0.2, 0.1, 0.0];
+  const sstep = (e0: number, e1: number, x: number) => {
+    const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0)));
+    return t * t * (3 - 2 * t);
+  };
+  const peakY = (f: number, a: number) => {
+    const m = Math.pow(0.5 + 0.5 * Math.cos(4 * (a - 0.7) + 1.4 * Math.sin(2 * a + 0.5)), 1.4);
+    const h = MOUND * Math.pow(1 - f, 1.15) * (0.4 + 0.85 * m);
+    const w = 1 - sstep(0.14, 0.32, f);
+    return 0.04 + h * (1 - w) + MOUND * SHELF * w;
+  };
   const top: Vector3[][] = topRings.map((f, ri) => {
     const row: Vector3[] = [];
     const n = ri === topRings.length - 1 ? 1 : N;
     for (let k = 0; k < n; k++) {
       const a = (k / N) * Math.PI * 2;
-      const rr = R * f * (1 + (ri === 0 ? 0 : (rng() - 0.5) * 0.14));
-      const y = ri === 0 ? 0.03 : 0.04 + MOUND * mound(f) + (rng() - 0.5) * (ri >= 4 ? 0.04 : 0.2);
+      const rr = R * f * (1 + (ri === 0 ? 0 : (rng() - 0.5) * 0.16));
+      const y = ri === 0 ? 0.03 : peakY(f, a) + (rng() - 0.5) * (f > 0.25 ? 0.26 : 0.04);
       row.push(new Vector3(Math.cos(a) * rr, y, Math.sin(a) * rr));
     }
     return row;
   });
   const topTri = (a: Vector3, b: Vector3, c: Vector3) => {
     const n = ab.subVectors(b, a).cross(ac.subVectors(c, a)).normalize();
-    const rocky = Math.min(1, Math.max(0, (0.82 - n.y) / 0.3));
+    // snow settles on gentle slopes, rock shows on the steep ones
+    const rocky = Math.min(1, Math.max(0, (0.56 - n.y) / 0.2));
+    const rock = ROCK_HI.clone().multiplyScalar(0.7 + rng() * 0.35);
     const base = SNOW.clone()
       .multiplyScalar(0.93 + rng() * 0.07)
-      .lerp(ROCK_HI, rocky * 0.8);
+      .lerp(rock, rocky);
     for (const v of [a, b, c]) {
       pos.push(v.x, v.y, v.z);
       col.push(base.r, base.g, base.b);
@@ -205,8 +214,13 @@ function buildRock(rng: Rng, R: number): BufferGeometry[] {
       } else {
         const c = top[ri + 1]![k]!;
         const d = top[ri + 1]![k2]!;
-        topTri(a, c, b);
-        topTri(b, c, d);
+        if ((k + ri) % 2 === 0) {
+          topTri(a, c, b);
+          topTri(b, c, d);
+        } else {
+          topTri(a, c, d);
+          topTri(a, d, b);
+        }
       }
     }
   }
@@ -216,36 +230,6 @@ function buildRock(rng: Rng, R: number): BufferGeometry[] {
   main.setAttribute('color', new Float32BufferAttribute(col, 3));
   main.computeVertexNormals(); // non-indexed: flat facets
   const parts: BufferGeometry[] = [main];
-
-  // summit crags around the citadel base and along the rim
-  const crag = (x: number, z: number, r: number, h: number, y: number) => {
-    const cone = new IcosahedronGeometry(1, 0);
-    const g = prep(
-      cone,
-      mat(x, y + h / 2, z, (rng() - 0.5) * 0.4, rng() * 6, (rng() - 0.5) * 0.4, r, h / 2, r * 0.8),
-      ROCK_HI,
-      rng,
-      0.35,
-      0.1,
-    );
-    const p = g.getAttribute('position');
-    const cA = g.getAttribute('color');
-    for (let i = 0; i < p.count; i++) {
-      const t = (p.getY(i) - y) / h;
-      const c = new Color(cA.getX(i), cA.getY(i), cA.getZ(i)).lerp(
-        SNOW,
-        Math.min(1, Math.max(0, (t - 0.6) * 1.4)),
-      );
-      cA.setXYZ(i, c.r, c.g, c.b);
-    }
-    parts.push(g);
-  };
-  const moundY = (r: number) => 0.04 + MOUND * mound(r / R);
-  for (let i = 0; i < 7; i++) {
-    const a = (i / 7) * Math.PI * 2 + rng() * 0.5;
-    const r = R * (0.55 + rng() * 0.3);
-    crag(Math.cos(a) * r, Math.sin(a) * r, 0.14 + rng() * 0.1, 0.22 + rng() * 0.22, moundY(r) - 0.06);
-  }
 
   // hanging fragments below the island
   const frags: [number, number, number, number][] = [
@@ -314,19 +298,22 @@ function buildCitadel(rng: Rng, out: Bucket, baseY: number): void {
     mat(0, baseY, 0, 0, yaw, 0).multiply(mat(x, y, z, rx, ry, rz));
 
   // plinth: broad octagonal foundation + gold collar (the sword's guard)
-  M(new CylinderGeometry(0.62, 0.7, 0.14, 8), root(0, 0.07, 0), 0.3);
-  G(box(1.35, 0.025, 0.26), root(0, 0.15, 0));
-  G(new CylinderGeometry(0.5, 0.52, 0.02, 8), root(0, 0.15, 0));
+  M(new CylinderGeometry(0.42, 0.5, 0.14, 8), root(0, 0.0, 0), 0.3);
+  // crossguard: a wide gold-trimmed terrace across the blade's base
+  M(box(1.4, 0.05, 0.36), root(0, 0.12, 0), 0.25, 0.02);
+  G(box(1.5, 0.03, 0.4), root(0, 0.16, 0));
+  for (const sx of [-1, 1])
+    G(new ConeGeometry(0.03, 0.08, 4), root(sx * 0.77, 0.16, 0, Math.PI / 4, 0, (-sx * Math.PI) / 2));
 
   // main blade
-  const H = 2.7;
+  const H = 2.15;
   const w0 = 0.5;
   const w1 = 0.28;
   const T = 0.17;
   M(bladeGeometry(H, w0, w1, T), root(0, 0.15, 0), 0.22);
   // spine ridge: a thin raised fin, giving the blade its sword section
-  M(bladeGeometry(H * 0.93, 0.05, 0.035, T + 0.035), root(0, 0.15, 0), 0.1, 0.02);
-  for (const by of [0.4, 0.95, 1.5, 2.05]) {
+  M(bladeGeometry(H * 0.97, 0.08, 0.05, T + 0.05), root(0, 0.15, 0), 0.05, 0.02);
+  for (const by of [0.45, 0.95, 1.45]) {
     const w = bladeWidth(by, H, w0, w1);
     G(box(w + 0.012, 0.014, T + 0.012), root(0, 0.15 + by, 0));
   }
@@ -335,10 +322,10 @@ function buildCitadel(rng: Rng, out: Bucket, baseY: number): void {
   // flanking blades (hilt-wing silhouette) and lesser blades
   const wings: [number, number, number, number, number][] = [
     // x, height, width, lean, thickness
-    [-0.42, 1.25, 0.2, 0.08, 0.12],
-    [0.43, 1.55, 0.22, -0.07, 0.12],
-    [-0.7, 0.7, 0.15, 0.2, 0.1],
-    [0.72, 0.85, 0.16, -0.2, 0.1],
+    [-0.42, 0.42, 0.2, 0.12, 0.12],
+    [0.42, 0.46, 0.2, -0.12, 0.12],
+    [-0.72, 0.2, 0.18, 0.25, 0.1],
+    [0.72, 0.22, 0.18, -0.25, 0.1],
   ];
   for (const [x, h, w, lean, t] of wings) {
     M(bladeGeometry(h, w, w * 0.7, t), root(x, 0.15, 0, 0, 0, lean), 0.25);
@@ -349,16 +336,16 @@ function buildCitadel(rng: Rng, out: Bucket, baseY: number): void {
     void t;
   }
 
-  // dining hall and baths: long low halls on the plinth with gold roofs
-  M(box(0.95, 0.2, 0.3), root(0, 0.15 + 0.1, 0.3), 0.25);
-  G(box(1.02, 0.03, 0.34), root(0, 0.15 + 0.21, 0.3));
-  M(box(0.7, 0.16, 0.24), root(0.05, 0.15 + 0.08, -0.33), 0.25);
-  G(box(0.76, 0.025, 0.28), root(0.05, 0.15 + 0.17, -0.33));
+  // dining hall and baths: small and low, clustered at the base
+  M(box(0.55, 0.12, 0.2), root(0.05, 0.15 + 0.06, 0.4), 0.25);
+  G(box(0.6, 0.025, 0.24), root(0.05, 0.15 + 0.13, 0.4));
+  M(box(0.5, 0.1, 0.2), root(-0.05, 0.15 + 0.05, -0.4), 0.25);
+  G(box(0.55, 0.025, 0.24), root(-0.05, 0.15 + 0.11, -0.4));
 
   // slender minarets
   const minarets: [number, number, number, number][] = [
-    [-0.9, 0.2, 0.7, 0.028],
-    [0.92, -0.12, 0.55, 0.024],
+    [-0.55, 0.3, 0.4, 0.022],
+    [0.55, -0.3, 0.35, 0.02],
   ];
   for (const [x, z, h, r] of minarets) {
     M(new CylinderGeometry(r * 0.8, r, h, 6), root(x, 0.14 + h / 2, z), 0.25);
@@ -369,9 +356,8 @@ function buildCitadel(rng: Rng, out: Bucket, baseY: number): void {
   const terraces: [number, number, number, number, number][] = [
     // y above base, side (+1/-1), centre x, width, depth
     [0.7, 1, -0.05, 0.62, 0.36],
-    [1.2, -1, 0.06, 0.5, 0.32],
-    [1.7, 1, 0.04, 0.4, 0.28],
-    [2.1, -1, -0.02, 0.3, 0.22],
+    [1.15, -1, 0.06, 0.5, 0.32],
+    [1.55, 1, 0.04, 0.38, 0.26],
   ];
   for (const [ty, side, cx, tw, td] of terraces) {
     const y = 0.15 + ty;
@@ -393,11 +379,8 @@ function buildCitadel(rng: Rng, out: Bucket, baseY: number): void {
   }
 
   // highest balcony: a round gold-railed disc jutting from the top of the blade
-  M(new CylinderGeometry(0.085, 0.07, 0.025, 10), root(0, 0.15 + 2.4, T / 2 + 0.07), 0.1, 0.02);
-  G(new CylinderGeometry(0.088, 0.088, 0.012, 10), root(0, 0.15 + 2.435, T / 2 + 0.07));
-
-  // grand stair: a steep marble incline climbing the mound toward the blade
-  M(box(0.14, 0.03, 1.3), root(0.0, 0.14, -0.95, -0.32), 0.2, 0.02);
+  M(new CylinderGeometry(0.085, 0.07, 0.025, 10), root(0, 0.15 + 1.8, T / 2 + 0.07), 0.1, 0.02);
+  G(new CylinderGeometry(0.088, 0.088, 0.012, 10), root(0, 0.15 + 1.835, T / 2 + 0.07));
 
   // windows: warm specks on both faces of the main blade, wings and halls (no doors anywhere, p.370)
   const win = box(0.017, 0.03, 0.006);
@@ -431,24 +414,24 @@ function buildCitadel(rng: Rng, out: Bucket, baseY: number): void {
   }
   for (let i = 0; i < 9; i++) {
     for (const [hx, hz, hw, hy] of [
-      [0, 0.3, 0.95, 0.2],
-      [0.05, -0.33, 0.7, 0.16],
+      [0.05, 0.4, 0.55, 0.12],
+      [-0.05, -0.4, 0.5, 0.1],
     ] as const) {
       if (rng() < 0.3) continue;
       const x = hx + (i / 8 - 0.5) * (hw - 0.1);
-      W(win2, root(x, 0.15 + hy * 0.5, hz + (hz > 0 ? 0.153 : -0.123)));
+      W(win2, root(x, 0.15 + hy * 0.5, hz + (hz > 0 ? 0.103 : -0.103)));
     }
   }
-  for (let i = 0; i < 3; i++) W(box(0.02, 0.03, 0.006), root(-0.02 + i * 0.03, 0.15 + 2.37, T / 2 + 0.003));
+  for (let i = 0; i < 3; i++) W(box(0.02, 0.03, 0.006), root(-0.02 + i * 0.03, 0.15 + 1.77, T / 2 + 0.003));
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 
 export function buildOlympus(radius: number): OlympusGeometry {
   const rng = rngFor('olympus');
-  const rockParts = buildRock(rng, radius);
+  const rockParts = buildRock(rng, radius * 0.8);
   const out: Bucket = { marble: [], gold: [], glow: [] };
-  buildCitadel(rng, out, 0.04 + MOUND * 0.95); // base of the citadel: the summit of the mound
+  buildCitadel(rng, out, 0.04 + MOUND * SHELF); // base of the citadel: the summit of the mound
   const merge = (parts: BufferGeometry[]) => {
     const g = mergeGeometries(parts, false);
     if (!g) throw new Error('olympus merge failed');
