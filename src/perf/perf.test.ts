@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { bakeSize, bakeUv } from './bake';
 import { isSoftwareRenderer } from './detect';
 import { parsePerfOverrides } from './params';
+import { newRefine, refineStep, stillDpr } from './refine';
 
 // settings.ts imports the zustand store, which reads the URL at import time.
 vi.stubGlobal('window', { location: { search: '', hash: '' } });
@@ -101,5 +102,28 @@ describe('overrides and bake geometry', () => {
     expect(bakeUv(-45, -33)).toEqual([0, 0]);
     expect(bakeUv(45, 33)).toEqual([1, 1]);
     expect(bakeSize(2048)).toEqual({ width: 2048, height: 1502 });
+  });
+});
+
+describe('progressive refinement', () => {
+  const sw = startupFlags('medium', true);
+  const gpu = startupFlags('medium', false);
+  it('software stills go to dpr 1 and back to the interactive dpr on wake', () => {
+    expect(stillDpr(sw, 1)).toBe(1);
+    expect(stillDpr(sw, 1.5)).toBe(1.25);
+    expect(stillDpr(sw, 3)).toBe(1.25);
+    expect(stillDpr(sw, 0.5)).toBe(0.6); // never below the interactive dpr
+    const a = refineStep(newRefine(), 'settled', 0.6, stillDpr(sw, 1));
+    expect(a).toMatchObject({ dpr: 1, state: { active: true, base: 0.6 } });
+    expect(refineStep(a.state, 'settled', 1, 1).dpr).toBeNull(); // no double refine
+    const b = refineStep(a.state, 'wake', 1, 1);
+    expect(b).toMatchObject({ dpr: 0.6, state: { active: false } });
+    expect(refineStep(b.state, 'wake', 0.6, 1).dpr).toBeNull();
+  });
+  it('real GPUs only refine back up to the startup dpr after an adaptive drop', () => {
+    expect(refineStep(newRefine(), 'settled', gpu.dpr, stillDpr(gpu)).dpr).toBeNull();
+    const dropped = refineStep(newRefine(), 'settled', 0.75, stillDpr(gpu));
+    expect(dropped.dpr).toBe(gpu.dpr);
+    expect(dropped.state.base).toBe(0.75);
   });
 });

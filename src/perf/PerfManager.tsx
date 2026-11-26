@@ -25,6 +25,7 @@ import {
   restore,
   startupFlags,
 } from './settings';
+import { IDLE_SETTLE_MS, newRefine, refineStep, stillDpr, type RefineEvent } from './refine';
 import { setPerfReason } from './status';
 import { coarseStride, strideIndex } from './terrainLod';
 
@@ -54,6 +55,7 @@ export function PerfManager() {
   const overrides = useRef(parsePerfOverrides(window.location.search, isAutomated()));
   const startFlags = useRef<PerfFlags>(useStore.getState().perf);
   const monitor = useRef(newMonitor());
+  const refine = useRef(newRefine());
   const frameCount = useRef(0);
   const burst = useRef({ n: 0, times: [] as number[] });
   const ambientFps = useStore((s) => s.perf.ambientFps);
@@ -111,6 +113,45 @@ export function PerfManager() {
     };
   }, []);
 
+  // Progressive refinement: a sharp still (higher dpr) once the camera has rested; back to the interactive dpr on wake.
+  // Keys off store.cameraIdle ONLY, so hover / selection while idle cannot flip the resolution.
+  useEffect(() => {
+    if (!overrides.current.refine) return;
+    let timer = 0;
+    const apply = (ev: RefineEvent) => {
+      const st = useStore.getState();
+      const r = refineStep(
+        refine.current,
+        ev,
+        st.perf.dpr,
+        stillDpr(startFlags.current, window.devicePixelRatio),
+      );
+      refine.current = r.state;
+      if (r.dpr !== null) st.setPerf({ dpr: r.dpr });
+    };
+    const settle = () => {
+      // wait for the start-up burst (and the slow-device check) to finish before the first still
+      if (burst.current.n < BURST) timer = window.setTimeout(settle, IDLE_SETTLE_MS);
+      else apply('settled');
+    };
+    const onIdle = (idle: boolean) => {
+      window.clearTimeout(timer);
+      if (idle) timer = window.setTimeout(settle, IDLE_SETTLE_MS);
+      else apply('wake');
+    };
+    if (useStore.getState().cameraIdle) onIdle(true);
+    let prev = useStore.getState().cameraIdle;
+    const unsub = useStore.subscribe((s) => {
+      if (s.cameraIdle === prev) return;
+      prev = s.cameraIdle;
+      onIdle(prev);
+    });
+    return () => {
+      window.clearTimeout(timer);
+      unsub();
+    };
+  }, []);
+
   // Ambient tick: water flow and mist drift at a capped rate while the tab is visible. 0 = static.
   useEffect(() => {
     if (frameloop !== 'demand' || ambientFps <= 0) return;
@@ -158,7 +199,8 @@ export function PerfManager() {
       }
       return;
     }
-    if (!overrides.current.adapt) return;
+    // Stills rendered at the refined dpr are one-offs, not evidence of decline: the monitor only sees interactive frames.
+    if (!overrides.current.adapt || refine.current.active) return;
     const s = useStore.getState().perf;
     const canRestore = restore(s, startFlags.current) !== null;
     const act = monitorStep(monitor.current, dt, s.ambientFps, state.clock.elapsedTime, canRestore);

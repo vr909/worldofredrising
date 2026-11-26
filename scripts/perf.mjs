@@ -81,7 +81,14 @@ try {
     });
     const errs = [];
     page.on('pageerror', (e) => errs.push(e.message));
-    const qs = new URLSearchParams({ view: 'overview', intro: '0', ui: '0', quality: q, demand: '0' });
+    const qs = new URLSearchParams({
+      view: 'overview',
+      intro: '0',
+      ui: '0',
+      quality: q,
+      demand: '0',
+      refine: '0',
+    });
     for (const [k, v] of new URLSearchParams(extra ?? '')) qs.set(k, v);
     const t0 = Date.now();
     await page.goto(`${base}?${qs}`);
